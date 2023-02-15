@@ -33,11 +33,11 @@ load_paths =
 build_linux = "./tools/build-linux.sh debug";
 build_win32 = ".\\tools\\build-win32.bat";
 
-run_linux = "./tools/run-linux.sh sandbox debug";
-run_win32 = ".\\tools\\run-win32.bat sandbox debug";
+run_linux = "./tools/run-linux.sh tnt debug";
+run_win32 = ".\\tools\\run-win32.bat tnt debug";
 
-combo_linux = "./tools/build-linux.sh debug && ./tools/run-linux.sh sandbox debug";
-combo_win32 = ".\\tools\\build-win32.bat && .\\tools\\run-win32.bat sandbox debug";
+combo_linux = "./tools/build-linux.sh debug && ./tools/run-linux.sh tnt debug";
+combo_win32 = ".\\tools\\build-win32.bat && .\\tools\\run-win32.bat tnt debug";
 
 command_list =
 {

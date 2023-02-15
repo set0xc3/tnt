@@ -1,7 +1,7 @@
 
 int main(void)
 {
-	os_main_setup();
+	//os_entry();
 	
 	return 0;
 }

@@ -1,7 +1,5 @@
-/* date = January 27th 2023 11:26 pm */
-
-#ifndef BASE_TYPES_H
-#define BASE_TYPES_H
+#ifndef TNT_GLOBAL_H
+#define TNT_GLOBAL_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,4 +35,4 @@ typedef s32      b32;
 
 #define ARRAY_COUNT(a) (sizeof(a) / sizeof(*a))
 
-#endif //BASE_TYPES_H
+#endif //TNT_GLOBAL_H

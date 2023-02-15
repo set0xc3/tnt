@@ -18,4 +18,6 @@ internal void *os_library_load(const char *path);
 internal void *os_library_load_symbol(void* library_handle, const char *name);
 internal void  os_library_unload(void* library_handle);
 
+internal void  os_entry(void);
+
 #endif //OS_H
