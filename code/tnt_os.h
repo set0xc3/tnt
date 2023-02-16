@@ -1,6 +1,12 @@
 #ifndef OS_H
 #define OS_H
 
+typedef struct OS_State OS_State;
+struct OS_State
+{
+	
+};
+
 internal void  os_init(void);
 internal void  os_shutdown(void);
 
@@ -17,7 +23,5 @@ internal u64   os_time_frequency(void);
 internal void *os_library_load(const char *path);
 internal void *os_library_load_symbol(void* library_handle, const char *name);
 internal void  os_library_unload(void* library_handle);
-
-internal void  os_entry(void);
 
 #endif //OS_H

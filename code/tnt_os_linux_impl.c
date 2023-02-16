@@ -5,16 +5,6 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
-internal void os_init(void)
-{
-	
-}
-
-internal void os_shutdown(void)
-{
-	
-}
-
 internal void *os_memory_alloc(void *start, const u64 size)
 {
     void *result = mmap(start, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);

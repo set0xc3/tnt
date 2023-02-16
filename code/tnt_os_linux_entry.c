@@ -1,7 +1,8 @@
 
 int main(void)
 {
-	//os_entry();
+	application_init();
+	application_run();
 	
 	return 0;
 }
