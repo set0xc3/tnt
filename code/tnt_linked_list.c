@@ -1,90 +1,126 @@
 
-//#define DLL_PUSH_BACK(f, l, n, next, prev) 
-
-internal void sll_push(void *list_ptr, void *node_ptr)
-{
-	SLL_List *list = (SLL_List *)list_ptr;
-	SLL_Node *node = (SLL_Node *)node_ptr;
-	
-	if (!list->first && !list->last) 
-	{
-		list->first = list->last = node;
-	} 
-	else if (list->last != node)
-	{
-		list->last->next = node;
-		list->last = node;
+internal void linked_list_push_front(LinkedList_List* list, LinkedList_Node* node) {
+	if (list->head != 0) {
+		list->head->prev = node;
+        node->next = list->head;
+        node->prev = 0;
+		list->head = node;
+	} else {
+        list->head = node; 
+        list->tail = node;
+		node->next = 0;
+        node->prev = 0;
 	}
 }
 
-internal void sll_pop(void *list_ptr, void *node_ptr)
-{
-	SLL_List *list = (SLL_List *)list_ptr;
-	SLL_Node *node = (SLL_Node *)node_ptr;
-	
-	if (list->last != node) 
-	{
-		list->first = list->first->next;
-	} else 
-	{
-		list->first = list->last = 0;
+internal void linked_list_push_back(LinkedList_List* list, LinkedList_Node* node) {
+	if (list->tail != 0) {
+		list->tail->next = node;
+		node->next = 0; 
+        node->prev = list->tail;
+		list->tail = node;
+	} else {
+        list->head = node; 
+        list->tail = node;
+        node->next = 0;
+        node->prev = 0;
 	}
 }
 
-internal void dll_push(void *list_ptr, void *node_ptr)
-{
-	DLL_List *list = (DLL_List *)list_ptr;
-	DLL_Node *node = (DLL_Node *)node_ptr;
-	
-	if (!list->first && !list->last) 
-	{
-		list->first = list->last = node;
-	} 
-	else if (list->last != node)
-	{
-		list->last->next = node;
-		node->prev = list->last;
-		list->last = node;
+internal LinkedList_Node* linked_list_pop_front(LinkedList_List* list) {
+	LinkedList_Node* link = list->head;
+	if (link == 0) {
+		return 0;
+	}
+	if (link->next != 0) {
+		link->next->prev = link->prev;
+	}
+	if (link->prev != 0) {
+		link->prev->next = link->next;
+	}
+	if (link == list->head) {
+		list->head = link->next;
+	}
+	if (link == list->tail) {
+		list->tail = link->prev;
+	}
+	return link;
+}
+
+internal LinkedList_Node* linked_list_pop_back(LinkedList_List* list) {
+	LinkedList_Node* link = list->tail;
+	if (link == 0) {
+		return 0;
+	}
+	if (link->next != 0) {
+		link->next->prev = link->prev;
+	}
+	if (link->prev != 0) {
+		link->prev->next = link->next;
+	}
+	if (link == list->head) {
+		list->head = link->next;
+	}
+	if (link == list->tail) {
+		list->tail = link->prev;
+	}
+	return link;
+}
+
+internal void linked_list_remove(LinkedList_List* list, LinkedList_Node* node) {
+	if (node != 0) {
+		if (node->next != 0) {
+			node->next->prev = node->prev;
+		}
+		if (node->prev != 0) {
+			node->prev->next = node->next;
+		}
+		if (list->head == node) {
+			list->head = node->next;
+		}
+		if (list->tail == node) {
+			list->tail = node->prev;
+		}
 	}
 }
 
-internal void dll_pop(void *list_ptr, void *node_ptr)
-{
-	DLL_List *list = (DLL_List *)list_ptr;
-	DLL_Node *node = (DLL_Node *)node_ptr;
-	
-	if (list->last != node) 
-	{
-		list->first = node->next;
-	} 
-	else 
-	{
-		list->first = list->last = 0;
-	}
+internal void linked_list_clear(LinkedList_List* list) {
+    for (LinkedList_Node* node = list->head; 
+        node != 0; 
+        node = node->next) {
+        if (node->next != 0) {
+            node->next->prev = node->prev;
+        }
+        if (node->prev != 0) {
+            node->prev->next = node->next;
+        }
+        if (list->head == node) {
+            list->head = node->next;
+        }
+        if (list->tail == node) {
+            list->tail = node->prev;
+        }
+    }
 }
 
-internal void dll_remove(void *list_ptr, void *node_ptr)
-{
-	DLL_List *list = (DLL_List *)list_ptr;
-	DLL_Node *node = (DLL_Node *)node_ptr;
-	
-	if (list->first != node && list->last != node) 
-	{
-		node->prev->next = node->next;
-		node->next->prev = node->prev;
-	} 
-	else if (list->first == node && list->last != node) 
-	{
-		list->first = node->next;
-		list->first->prev = 0;
-	} 
-	else if (list->last == node && list->first != node) 
-	{
-		list->last = node->prev;
-		list->last->next = 0;
-	} 
-	else if (list->first == node && list->last == node) 
-	{
-		list->first = list->last = 0;
+internal b8 linked_list_is_empty(LinkedList_List* list) {
+    return list->head == 0;
+}
+
+internal void* linked_list_iterate_next(LinkedList_Iterator* it) {
+    LinkedList_Node* node = it->current;
+    if (node == 0) {
+		return 0;
 	}
+	it->current = node->next;
+    return (void*)(u64)node - it->offset;
+}
+
+internal void* linked_list_iterate_prev(LinkedList_Iterator* it) {
+    LinkedList_Node* node = it->current;
+    if (node == 0) {
+		return 0;
+	}
+	it->current = node->prev;
+    return (void*)(u64)node - it->offset;
 }

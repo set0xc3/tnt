@@ -1,6 +1,5 @@
 
-internal void log_info(const char* tag, const char* fmt, ...)
-{
+internal void log_info(const char* tag, const char* fmt, ...) {
 	char log_buffer[512];
 	sprintf(log_buffer, "%s", tag);
 	va_list va;

@@ -7,9 +7,10 @@
 #include "tnt_linked_list.h"
 #include "tnt_logger.h"
 
-#include "tnt_application.h"
-
 #include "tnt_os.h"
+#include "tnt_os_input.h"
 #include "tnt_os_window.h"
+
+#include "tnt_application.h"
 
 #endif //TNT_H

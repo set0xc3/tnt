@@ -1,31 +1,42 @@
 #ifndef TNT_LINKED_LIST_H
 #define TNT_LINKED_LIST_H
 
-typedef struct SLL_Node SLL_Node;
-struct SLL_Node {
-	SLL_Node *next;
+#include <stddef.h>
+
+typedef struct LinkedList_Node LinkedList_Node;
+struct LinkedList_Node {
+    LinkedList_Node* next;
+    LinkedList_Node* prev;
 };
 
-typedef struct SLL_List SLL_List;
-struct SLL_List {
-	SLL_Node *first, *last;
+typedef struct LinkedList_List LinkedList_List;
+struct LinkedList_List {
+    LinkedList_Node* head;
+    LinkedList_Node* tail;
 };
 
-typedef struct DLL_Node DLL_Node;
-struct DLL_Node {
-	DLL_Node *next, *prev;
+internal void 		      linked_list_push_front(LinkedList_List* list, LinkedList_Node* node);
+internal void 		      linked_list_push_back(LinkedList_List* list, LinkedList_Node* node);
+internal LinkedList_Node* linked_list_pop_front(LinkedList_List* list);
+internal LinkedList_Node* linked_list_pop_back(LinkedList_List* list);
+internal void		      linked_list_remove(LinkedList_List* list, LinkedList_Node* node);
+internal void		      linked_list_clear(LinkedList_List* list);
+internal b8			      linked_list_is_empty(LinkedList_List* list);
+
+typedef struct LinkedList_Iterator LinkedList_Iterator;
+struct LinkedList_Iterator
+{
+    LinkedList_Node* current;
+	u64 offset;
 };
 
-typedef struct DLL_List DLL_List;
-struct DLL_List {
-	DLL_Node *first, *last;
-};
+internal void* linked_list_iterate_next(LinkedList_Iterator* it);
+internal void* linked_list_iterate_prev(LinkedList_Iterator* it);
 
-internal void sll_push(void *list_ptr, void *node_ptr);
-internal void sll_pop(void *list_ptr, void *node_ptr);
+#define linked_list_iterator_head(l, t, d) \
+	((LinkedList_Iterator){l.head, offsetof(t, d)})
 
-internal void dll_push(void *list_ptr, void *node_ptr);
-internal void dll_pop(void *list_ptr, void *node_ptr);
-internal void dll_remove(void *list_ptr, void *node_ptr);
+#define linked_list_iterator_tail(l, t, d) \
+	((LinkedList_Iterator){l.tail, offsetof(t, d)})
 
 #endif //TNT_LINKED_LIST_H

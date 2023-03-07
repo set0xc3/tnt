@@ -1,7 +1,7 @@
 
-int main(void)
-{
-	//os_entry();
+int main(void) {
+	application_init();
+	application_run();
 	
 	return 0;
 }

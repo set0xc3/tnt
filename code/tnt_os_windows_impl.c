@@ -1,9 +1,8 @@
 #include <windows.h>
 #include <shellapi.h>
 
-TNT_API void *os_memory_reserve(void *start, const u64 size)
-{
-	local_variable void *result;
+TNT_API void* os_memory_reserve(void* start, const u64 size) {
+	local_variable void* result;
 	result = VirtualAlloc(start, size, MEM_COMMIT, PAGE_READWRITE);
 	if (result) {
 		return result;
@@ -16,9 +15,8 @@ TNT_API void *os_memory_reserve(void *start, const u64 size)
     return result;
 }
 
-TNT_API void os_memory_release(void *memory, const u64 size)
-{
-	local_variable s32 is_error;
+TNT_API void os_memory_release(void* memory, const u64 size) {
+	local_variable i32 is_error;
 	is_error = VirtualFree(memory, 0, MEM_RELEASE);
 	if (!is_error) {
 		LOG_ERROR("Failed release memory");
@@ -26,20 +24,17 @@ TNT_API void os_memory_release(void *memory, const u64 size)
 	}
 }
 
-TNT_API u64 os_page_size(void)
-{
+TNT_API u64 os_page_size(void) {
 	local_variable LPSYSTEM_INFO info;
 	GetSystemInfo(&info);
 	return (u64)info.dwPageSize;
 }
 
-TNT_API void os_sleep(const u32 milliseconds)
-{
+TNT_API void os_sleep(const u32 milliseconds) {
 	Sleep(milliseconds);
 }
 
-TNT_API void *os_library_load(const char *path)
-{
+TNT_API void* os_library_load(const char* path) {
 	local_variable HMODULE result;
 	
 	char path_ext[512] = {0};
@@ -56,8 +51,7 @@ TNT_API void *os_library_load(const char *path)
 	}
 }
 
-TNT_API void *os_library_load_symbol(void* library_handle, const char *name)
-{
+TNT_API void* os_library_load_symbol(void* library_handle, const char* name) {
 	local_variable FARPROC result;
 	result = GetProcAddress(library_handle, name);
 	if (result) {
@@ -70,8 +64,7 @@ TNT_API void *os_library_load_symbol(void* library_handle, const char *name)
 	}
 }
 
-TNT_API void os_library_unload(void* library_handle)
-{
+TNT_API void os_library_unload(void* library_handle) {
 	local_variable BOOL result;
 	result = FreeLibrary(handle);
 	if (!result) {
@@ -80,15 +73,13 @@ TNT_API void os_library_unload(void* library_handle)
 	}
 }
 
-TNT_API u64 os_time_now(void)
-{
+TNT_API u64 os_time_now(void) {
 	local_variable LARGE_INTEGER result;
 	QueryPerformanceCounter(&result);
 	return result.QuadPart;
 }
 
-TNT_API u64 os_time_frequency(void)
-{
+TNT_API u64 os_time_frequency(void) {
 	local_variable LARGE_INTEGER result;
 	QueryPerformanceFrequency(&result);
 	return result.QuadPart;
