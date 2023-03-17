@@ -1,5 +1,6 @@
+#include "tnt_linked_list.h"
 
-internal void linked_list_push_front(LinkedList_List* list, LinkedList_Node* node) {
+void linked_list_push_front(LinkedList_List* list, LinkedList_Node* node) {
 	if (list->head != 0) {
 		list->head->prev = node;
         node->next = list->head;
@@ -13,7 +14,7 @@ internal void linked_list_push_front(LinkedList_List* list, LinkedList_Node* nod
 	}
 }
 
-internal void linked_list_push_back(LinkedList_List* list, LinkedList_Node* node) {
+void linked_list_push_back(LinkedList_List* list, LinkedList_Node* node) {
 	if (list->tail != 0) {
 		list->tail->next = node;
 		node->next = 0; 
@@ -27,7 +28,7 @@ internal void linked_list_push_back(LinkedList_List* list, LinkedList_Node* node
 	}
 }
 
-internal LinkedList_Node* linked_list_pop_front(LinkedList_List* list) {
+LinkedList_Node* linked_list_pop_front(LinkedList_List* list) {
 	LinkedList_Node* link = list->head;
 	if (link == 0) {
 		return 0;
@@ -47,7 +48,7 @@ internal LinkedList_Node* linked_list_pop_front(LinkedList_List* list) {
 	return link;
 }
 
-internal LinkedList_Node* linked_list_pop_back(LinkedList_List* list) {
+LinkedList_Node* linked_list_pop_back(LinkedList_List* list) {
 	LinkedList_Node* link = list->tail;
 	if (link == 0) {
 		return 0;
@@ -67,7 +68,7 @@ internal LinkedList_Node* linked_list_pop_back(LinkedList_List* list) {
 	return link;
 }
 
-internal void linked_list_remove(LinkedList_List* list, LinkedList_Node* node) {
+void linked_list_remove(LinkedList_List* list, LinkedList_Node* node) {
 	if (node != 0) {
 		if (node->next != 0) {
 			node->next->prev = node->prev;
@@ -84,7 +85,7 @@ internal void linked_list_remove(LinkedList_List* list, LinkedList_Node* node) {
 	}
 }
 
-internal void linked_list_clear(LinkedList_List* list) {
+void linked_list_clear(LinkedList_List* list) {
     for (LinkedList_Node* node = list->head; 
         node != 0; 
         node = node->next) {
@@ -103,11 +104,11 @@ internal void linked_list_clear(LinkedList_List* list) {
     }
 }
 
-internal b8 linked_list_is_empty(LinkedList_List* list) {
+b8 linked_list_is_empty(LinkedList_List* list) {
     return list->head == 0;
 }
 
-internal void* linked_list_iterate_next(LinkedList_Iterator* it) {
+void* linked_list_iterate_next(LinkedList_Iterator* it) {
     LinkedList_Node* node = it->current;
     if (node == 0) {
 		return 0;
@@ -116,7 +117,7 @@ internal void* linked_list_iterate_next(LinkedList_Iterator* it) {
     return (void*)(u64)node - it->offset;
 }
 
-internal void* linked_list_iterate_prev(LinkedList_Iterator* it) {
+void* linked_list_iterate_prev(LinkedList_Iterator* it) {
     LinkedList_Node* node = it->current;
     if (node == 0) {
 		return 0;

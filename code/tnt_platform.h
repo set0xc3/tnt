@@ -2,9 +2,9 @@
 #define TNT_PLATFORM_H
 
 #ifdef __gnu_linux__
-#define PLATFORM_LINUX 1
+#define PLATFORM_LINUX
 #elif __WIN32__
-#define PLATFORM_WINDOWS 1
+#define PLATFORM_WINDOWS
 #else
 #error missing platform detection
 #endif

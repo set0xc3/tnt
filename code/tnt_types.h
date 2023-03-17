@@ -1,5 +1,5 @@
-#ifndef TNT_GLOBAL_H
-#define TNT_GLOBAL_H
+#ifndef TNT_TYPES_H
+#define TNT_TYPES_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,4 +40,4 @@ typedef uintptr_t uintptr;
 
 #define ArrayCount(a) (sizeof(a) / sizeof(*a))
 
-#endif //TNT_GLOBAL_H
+#endif //TNT_TYPES_H

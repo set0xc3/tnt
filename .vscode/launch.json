@@ -10,11 +10,11 @@
             "stopAtEntry":  false,
             "windows": {
                 "cwd":        "${workspaceFolder}/build/debug",
-                "program":    "${workspaceFolder}/build/debug/program.exe",
+                "program":    "${workspaceFolder}/build/debug/tnt.exe",
             },
             "linux": {
                 "cwd":        "${workspaceFolder}/build/debug",
-                "program":    "${workspaceFolder}/build/debug/program.bin",
+                "program":    "${workspaceFolder}/build/debug/tnt.bin",
             },
         },
         {
@@ -25,11 +25,11 @@
             "stopAtEntry":  false,
             "windows": {
                 "cwd":        "${workspaceFolder}/build/release",
-                "program":    "${workspaceFolder}/build/release/program.exe",
+                "program":    "${workspaceFolder}/build/release/tnt.exe",
             },
             "linux": {
                 "cwd":        "${workspaceFolder}/build/release",
-                "program":    "${workspaceFolder}/build/release/program.bin",
+                "program":    "${workspaceFolder}/build/release/tnt.bin",
             },
         }
     ]

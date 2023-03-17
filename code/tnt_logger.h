@@ -1,7 +1,10 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-internal void log_info(const char* tag, const char* fmt, ...);
+#include <stdio.h>
+#include <string.h>
+
+void log_info(const char* tag, const char* fmt, ...);
 
 #define LOG_INFO(...)    log_info("[INFO] ", ##__VA_ARGS__)
 #define LOG_DEBUG(...)   log_info("[DEBUG] ", ##__VA_ARGS__)

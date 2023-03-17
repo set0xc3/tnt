@@ -1,3 +1,4 @@
+#include "tnt_application.h"
 
 int main(void) {
 	application_init();
