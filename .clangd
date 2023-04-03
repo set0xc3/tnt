@@ -1,0 +1,4 @@
+CompileFlags:
+  Add: [
+  -I/home/duck/hole/dev/tnt/code, 
+  -I/home/duck/hole/dev/tnt/vendor/glad/include]

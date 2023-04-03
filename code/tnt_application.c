@@ -1,7 +1,6 @@
 #include "tnt_application.h"
 #include "tnt_logger.h"
 #include "tnt_os.h"
-#include "tnt_platform.h"
 
 ApplicationState app_state = {0};
 

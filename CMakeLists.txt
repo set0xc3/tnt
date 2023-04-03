@@ -45,12 +45,19 @@ set(TARGET tnt.bin)
 add_executable(${TARGET} ${HEADERS} ${SOURCES})
 
 # ==============================================================================
+# Vendor 
+# ==============================================================================
+
+find_package(SDL2 REQUIRED)
+
+# ==============================================================================
 # External
 # ==============================================================================
 
 target_include_directories(${TARGET} PRIVATE 
     ${PROJECT_SOURCE_DIR}/code
     ${PROJECT_SOURCE_DIR}/vendor/glad/include
+  	${SDL2_INCLUDE_DIR}
 )
 
 target_link_directories(${TARGET} PRIVATE 
@@ -81,7 +88,7 @@ endif()
 if(WIN32)
     target_link_libraries(${TARGET} PRIVATE )
 elseif(LINUX)
-    target_link_libraries(${TARGET} PRIVATE X11)
+    target_link_libraries(${TARGET} PRIVATE X11 ${SDL2_LIBRARIES})
 endif()
 
 # ==============================================================================

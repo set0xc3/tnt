@@ -51,11 +51,11 @@ typedef struct OS_Window OS_Window;
 struct OS_Window {
   LinkedList_Node node;
 
+  void *handle;
   const char *title;
   u32 width, height;
   u32 xpos, ypos;
 
-  void *internal_data;
   void (*event_callback)(OS_Event *event);
 };
 
