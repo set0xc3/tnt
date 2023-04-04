@@ -63,6 +63,7 @@ target_include_directories(${TARGET} PRIVATE
     ${PROJECT_SOURCE_DIR}/vendor/glad/include
   	${SDL2_INCLUDE_DIR}
 )
+target_link_libraries(${TARGET} PRIVATE -Wl,--export-dynamic)
 
 # ==============================================================================
 # Target properties

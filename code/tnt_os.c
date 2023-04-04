@@ -21,7 +21,7 @@ u64 os_time_frequency(void) { return SDL_GetPerformanceFrequency(); }
 String8 os_file_read(String8 path) {
     String8 result = {0};
     FILE *file = fopen(str8_to_char(path), "r");
-    if (file == 0) {
+    if (file != 0) {
         fseek(file, 0, SEEK_END);
         result.size = ftell(file) - 1;
         result.data = malloc(result.size);

@@ -25,6 +25,5 @@ struct Render {
 
 b8   render_load(Render *ctx, String8 path);
 void render_unload(Render *ctx);
-void render_quad_push(V4F32 rect, V4F32 color);
 
 #endif // TNT_RENDER_H

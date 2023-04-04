@@ -29,8 +29,6 @@ void application_run(void) {
       ctx.is_quit = true;
     }
 
-    ctx.render->api->begin(ctx.window->handle, ctx.window->render, v4(V4F32, 1.0f, 1.0f, 1.0f, 1.0f));
-
     application_process_events();
 
     if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
@@ -47,6 +45,10 @@ void application_run(void) {
     if (mouse_scroll_y != 0) {
       LOG_DEBUG("[input] mouse:scroll:%i", mouse_scroll_y);
     }
+
+    ctx.render->api->begin(ctx.window->handle, ctx.window->render, v4(V4F32, 1.0f, 1.0f, 1.0f, 1.0f));
+    ctx.render->api->flush(ctx.window->handle);
+    ctx.render->api->end(ctx.window->handle);
 
     os_sleep(1);
   }
