@@ -1,6 +1,7 @@
 #include "tnt_logger.h"
 #include "tnt_os.h"
 #include "tnt_platform.h"
+#include "tnt_string.h"
 
 #include <dlfcn.h>
 #include <fcntl.h>
@@ -45,15 +46,15 @@ u64 os_page_size(void) {
 
 void os_sleep(u32 milliseconds) { usleep(milliseconds); }
 
-void *os_library_load(const char *library_path) {
+void *os_library_load(String8 path) {
   void *result = 0;
 
-  u64 len = strlen(library_path);
-  char *path = malloc(len);
-  strncpy(path, library_path, len);
-  strncat(path, PLATFORM_LIBRARY_EXTENSION, strlen(PLATFORM_LIBRARY_EXTENSION));
+	u64 size = str_len(path) + strlen(PLATFORM_LIBRARY_EXTENSION);
+	String8 new_path = {(u8*)alloca(size), size};
+	strncpy(str8_to_char(new_path), str8_to_char(path), str_len(new_path));
+	strncat(str8_to_char(new_path), PLATFORM_LIBRARY_EXTENSION, sizeof(new_path));
 
-  result = dlopen(path, RTLD_LAZY);
+  result = dlopen(str8_to_char(new_path), RTLD_LAZY);
   if (result) {
     return result;
   } else {
@@ -61,12 +62,10 @@ void *os_library_load(const char *library_path) {
     ASSERT(true);
     return 0;
   }
-
-  free(path);
 }
 
-void *os_library_load_symbol(void *library_handle, const char *name) {
-  void *result = dlsym(library_handle, name);
+void *os_library_load_symbol(void *library_handle, String8 name) {
+  void *result = dlsym(library_handle, str8_to_char(name));
   if (result) {
     return result;
   } else {

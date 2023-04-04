@@ -10,8 +10,6 @@ b8 os_window_open(OS_Window *window, const char *title, u32 width, u32 height,
   window_flags |= SDL_WINDOW_OPENGL;
   // #endif
 
-  SDL_Window *sdl_window = 0;
-
   if (SDL_Init(SDL_INIT_VIDEO < 0)) {
     LOG_ERROR("[SDL] Failed init sdl");
     return false;
@@ -27,12 +25,15 @@ b8 os_window_open(OS_Window *window, const char *title, u32 width, u32 height,
   SDL_GL_SetSwapInterval(1);
   // #endif
 
-  sdl_window =
+  SDL_Window *sdl_window =
       SDL_CreateWindow("My Window", xpos, ypos, width, height, window_flags);
   if (!sdl_window) {
     LOG_ERROR("[SDL] Failed create window");
     return false;
   }
+
+  window->handle = sdl_window;
+  window->render = SDL_GL_CreateContext(sdl_window);
 
   return true;
 }

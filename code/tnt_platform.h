@@ -34,11 +34,11 @@
 #endif 
 
 #ifdef __WIN32__
-#define DLL_EXPORT __declspec(dllexport)
-#define DLL_IMPORT __declspec(dllimport) 
+#define EXPORT __declspec(dllexport)
+#define IMPORT __declspec(dllimport) 
 #else
-#define DLL_EXPORT __attribute__ ((visibility ("default")))
-#define DLL_IMPORT
+#define EXPORT __attribute__ ((visibility ("default")))
+#define IMPORT
 #endif
 
 #endif //TNT_PLATFORM_H

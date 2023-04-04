@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(tnt.bin LANGUAGES C)
 
+add_subdirectory(code/libs/render)
+
 if(LINUX)
     set(CMAKE_C_COMPILER "/usr/bin/clang")
     set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
@@ -28,13 +30,15 @@ set(HEADERS
   code/tnt_logger.h
   code/tnt_os.h
   code/tnt_platform.h
+  code/tnt_render.h
+  code/tnt_string.h
 )
 
 set(SOURCES
   code/tnt_application.c
   code/tnt_linked_list.c
-  code/tnt_logger.c
   code/tnt_os.c
+  code/tnt_render.c
 )
 
 # ==============================================================================
@@ -58,9 +62,6 @@ target_include_directories(${TARGET} PRIVATE
     ${PROJECT_SOURCE_DIR}/code
     ${PROJECT_SOURCE_DIR}/vendor/glad/include
   	${SDL2_INCLUDE_DIR}
-)
-
-target_link_directories(${TARGET} PRIVATE 
 )
 
 # ==============================================================================

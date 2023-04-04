@@ -4,13 +4,15 @@
 #include "tnt_types.h"
 #include "tnt_linked_list.h"
 #include "tnt_os.h"
+#include "tnt_render.h"
 
 typedef struct ApplicationState ApplicationState;
 struct ApplicationState {
-  b8 is_quit;
-  OS_Input *os_input;
-  LinkedList_List window_list;
-  LinkedList_List event_list;
+  b8              is_quit;
+  OS_Input       *input;
+  Render         *render;
+  OS_Window      *window;
+  LinkedList_List event_list;  // OS_Event*
 };
 
 void application_init(void);
