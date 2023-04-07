@@ -10,6 +10,12 @@ struct R_VertexData {
   V2F32 uv;       // 8  bytes
 };                // 36 bytes
 
+typedef struct R_Mesh R_Mesh;
+struct R_Mesh {
+	R_VertexData *vertices;
+	u64 vertex_count;
+};
+
 typedef void* R_Window;
 typedef void* R_Context;
 
