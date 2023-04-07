@@ -9,6 +9,24 @@
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
 
+R_VertexData quad_mesh[] = {
+  {v3(V3F32, 0.0f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.0f)},
+  {v3(V3F32, 0.5f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.0f)},
+  {v3(V3F32, 0.5f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.5f)},
+
+  {v3(V3F32, 0.5f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.5f)},
+  {v3(V3F32, 0.0f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.5f)},
+  {v3(V3F32, 0.0f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.0f)},
+
+};
+
+R_Mesh *quad_mesh_create() {
+  R_Mesh *mesh = malloc(sizeof(R_Mesh));
+	mesh->vertices = quad_mesh;
+	mesh->vertex_count = ArrayCount(quad_mesh);
+  return mesh;
+}
+
 typedef struct Entity Entity;
 struct Entity {
 	V3F32 position;
@@ -16,17 +34,15 @@ struct Entity {
 	R_Mesh *mesh;
 };
 
-R_Mesh r_quad_mesh_craete() {
-  R_VertexData v[] = {
-		{v3(V3F32, -0.5f, -0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0,0)},
- 		{v3(V3F32, 0.5f, -0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0,0)},
-		{v3(V3F32, 0.0f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0,0)},
-	};
+Entity *entity_create() {
+  Entity *result = malloc(sizeof(Entity));
+  memset(result, 0, sizeof(Entity));
+  result->mesh = quad_mesh_create();
+  return result;
+}
 
-  R_Mesh mesh = {0};
-	mesh.vertices = v;
-	mesh.vertex_count = ArrayCount(v);
-  return mesh;
+void entity_mesh_set(Entity *ent, R_Mesh *mesh) {
+  ent->mesh = mesh;
 }
 
 ApplicationState ctx = {0};
@@ -47,29 +63,14 @@ void application_init(void) {
 }
 
 void application_run(void) {
-	Entity entites[1000] = {0};
-	u32 entity_count = 0;
-
-  R_VertexData v[] = {
-		{v3(V3F32, 0.0f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.0f)},
- 		{v3(V3F32, 0.5f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.0f)},
-		{v3(V3F32, 0.5f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.5f)},
-
-		{v3(V3F32, 0.5f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.5f, 0.5f)},
- 		{v3(V3F32, 0.0f, 0.5f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.5f)},
-		{v3(V3F32, 0.0f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.0f)},
-
-	};
-  R_Mesh quad_mesh = {0};
-	quad_mesh.vertices = v;
-	quad_mesh.vertex_count = ArrayCount(v);
+  Entity *ent = entity_create();
 
   u32 shader_id = ctx.render->api->shader_load(
 			str8("./assets/shaders/base_vs.glsl"),
       str8("./assets/shaders/base_fs.glsl"));
 
-  u32 vbo = ctx.render->api->vertex_buffer_create(quad_mesh.vertices, quad_mesh.vertex_count * sizeof(R_VertexData));
-  u32 vao = ctx.render->api->vertex_array_create(vbo, quad_mesh.vertices, quad_mesh.vertex_count * sizeof(R_VertexData));
+  u32 vbo = ctx.render->api->vertex_buffer_create(0, MAX_VERTEX_COUNT);
+  u32 vao = ctx.render->api->vertex_array_create(vbo, 0, MAX_VERTEX_COUNT);
 
   while (!ctx.is_quit) {
     if (!os_window_poll_events(ctx.window)) {
@@ -85,7 +86,9 @@ void application_run(void) {
 		{
 			ctx.render->api->shader_bind(shader_id);
 			ctx.render->api->vertex_array_bind(vao);
-    	ctx.render->api->flush(ctx.window->handle, &quad_mesh);
+      ctx.render->api->vertex_buffer_bind(vbo);
+      ctx.render->api->vertex_buffer_update(ent->mesh->vertices, ent->mesh->vertex_count * sizeof(R_VertexData));
+    	ctx.render->api->flush(ctx.window->handle, ent->mesh);
 		}
 
     ctx.render->api->end(ctx.window->handle);

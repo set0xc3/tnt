@@ -171,7 +171,6 @@ internal u32 gl_vertex_array_create(u32 vbo_id, void *buffer, u64 size) {
 	glCreateVertexArrays(1, &id);
 	glBindVertexArray(id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-	glBufferData(GL_ARRAY_BUFFER, size, buffer, buffer ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(R_VertexData), (void *)offsetof(R_VertexData, position));
 	glEnableVertexAttribArray(1);

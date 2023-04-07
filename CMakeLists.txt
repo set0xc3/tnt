@@ -32,6 +32,8 @@ set(HEADERS
   code/tnt_platform.h
   code/tnt_render.h
   code/tnt_string.h
+  code/tnt_math.h
+  code/tnt_camera.h
 )
 
 set(SOURCES
