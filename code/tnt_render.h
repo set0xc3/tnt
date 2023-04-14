@@ -6,8 +6,8 @@
 #include "tnt_vector.h"
 #include "tnt_render_types.h"
 
-typedef struct RenderAPI RenderAPI;
-struct RenderAPI {
+typedef struct TNT_RenderAPI TNT_RenderAPI;
+struct TNT_RenderAPI {
   char *version;
   void (*init)(R_Window *window);
   void (*destroy)(R_Window *window);
@@ -29,13 +29,13 @@ struct RenderAPI {
 	void (*vertex_array_bind)(u32 id);
 };
 
-typedef struct Render Render;
-struct Render {
+typedef struct TNT_Render TNT_Render;
+struct TNT_Render {
   void *handle;
-  RenderAPI *api;
+  TNT_RenderAPI *api;
 };
 
-b8   render_load(Render *ctx, String8 path);
-void render_unload(Render *ctx);
+b8   render_load(TNT_Render *ctx, String8 path);
+void render_unload(TNT_Render *ctx);
 
 #endif // TNT_RENDER_H

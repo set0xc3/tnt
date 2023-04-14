@@ -1,6 +1,6 @@
 #include "tnt_application.h"
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	application_init();
 	application_run();
 	

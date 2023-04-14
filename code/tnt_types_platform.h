@@ -1,5 +1,5 @@
-#ifndef TNT_PLATFORM_H
-#define TNT_PLATFORM_H
+#ifndef TNT_TYPES_PLATFORM_H
+#define TNT_TYPES_PLATFORM_H
 
 #ifdef __gnu_linux__
 #define PLATFORM_LINUX
@@ -41,4 +41,4 @@
 #define IMPORT
 #endif
 
-#endif //TNT_PLATFORM_H
+#endif // TNT_TYPES_PLATFORM_H

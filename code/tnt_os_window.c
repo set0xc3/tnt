@@ -25,15 +25,18 @@ b8 os_window_open(OS_Window *window, const char *title, u32 width, u32 height,
   SDL_GL_SetSwapInterval(1);
   // #endif
 
-  SDL_Window *sdl_window =
-      SDL_CreateWindow("My Window", xpos, ypos, width, height, window_flags);
-  if (!sdl_window) {
+  window->handle = SDL_CreateWindow("My Window", xpos, ypos, width, height, window_flags);
+  if (!window->handle) {
     LOG_ERROR("[SDL] Failed create window");
     return false;
   }
 
-  window->handle = sdl_window;
-  window->render = SDL_GL_CreateContext(sdl_window);
+	window->title = title;
+  window->render = SDL_GL_CreateContext(window->handle);
+	window->xpos = xpos;
+	window->ypos = ypos;
+	window->width = width;
+	window->height = height;
 
   return true;
 }

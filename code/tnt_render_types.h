@@ -18,5 +18,6 @@ struct R_Mesh {
 
 typedef void* R_Window;
 typedef void* R_Context;
+typedef u32 R_Shader;
 
 #endif // TNT_RENDER_TYPES_H

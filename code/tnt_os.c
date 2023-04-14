@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "tnt_platform.h"
+#include "tnt_types_platform.h"
 
 #include "tnt_os_input.c"
 #include "tnt_os_window.c"
@@ -14,9 +14,13 @@
 
 #include <SDL2/SDL.h>
 
-u64 os_time_now(void) { return SDL_GetPerformanceCounter(); }
+u64 os_time_now(void) { 
+	return SDL_GetPerformanceCounter(); 
+}
 
-u64 os_time_frequency(void) { return SDL_GetPerformanceFrequency(); }
+u64 os_time_frequency(void) { 
+	return SDL_GetPerformanceFrequency(); 
+}
 
 String8 os_file_read(String8 path) {
     String8 result = {0};

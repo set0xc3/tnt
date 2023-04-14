@@ -1,6 +1,7 @@
-#include "lib_render_opengl.h"
+#include "render_opengl.h"
 #include "tnt_render.h"
-#include "tnt_platform.h"
+#include "tnt_types.h"
+#include "tnt_types_platform.h"
 #include "tnt_logger.h"
 #include "tnt_string.h"
 #include "tnt_os.h"
@@ -11,7 +12,7 @@
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_video.h>
 
-EXPORT RenderAPI api = {
+EXPORT TNT_RenderAPI api = {
 	"1.0.0",
 	gl_init,
 	gl_destroy,

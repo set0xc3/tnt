@@ -3,11 +3,14 @@
 #include "tnt_os.h"
 #include "tnt_render_types.h"
 #include "tnt_string.h"
+#include "tnt_types.h"
 #include "tnt_vector.h"
 
 #define MAX_QUAD_COUNT 1000
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
+
+ApplicationState ctx = {0};
 
 R_VertexData quad_mesh[] = {
   {v3(V3F32, 0.0f, 0.0f, 0.0f), v4(V4F32, 1,0,1,1), v2(V2F32, 0.0f, 0.0f)},
@@ -21,7 +24,7 @@ R_VertexData quad_mesh[] = {
 };
 
 R_Mesh *quad_mesh_create() {
-  R_Mesh *mesh = malloc(sizeof(R_Mesh));
+  R_Mesh *mesh = push_struct_zero(ctx.arena_transient_storage, R_Mesh);
 	mesh->vertices = quad_mesh;
 	mesh->vertex_count = ArrayCount(quad_mesh);
   return mesh;
@@ -35,8 +38,7 @@ struct Entity {
 };
 
 Entity *entity_create() {
-  Entity *result = malloc(sizeof(Entity));
-  memset(result, 0, sizeof(Entity));
+  Entity *result = push_struct_zero(ctx.arena_transient_storage, Entity); 
   result->mesh = quad_mesh_create();
   return result;
 }
@@ -45,12 +47,12 @@ void entity_mesh_set(Entity *ent, R_Mesh *mesh) {
   ent->mesh = mesh;
 }
 
-ApplicationState ctx = {0};
-
 void application_init(void) {
-  ctx.input  = malloc(sizeof(OS_Input));
-  ctx.window = malloc(sizeof(OS_Window));
-  ctx.render = malloc(sizeof(Render));
+	ctx.arena_permanent_storage = arena_create(Megabytes(64));
+	ctx.arena_transient_storage = arena_create(Gigabytes(4));
+  ctx.input  = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
+  ctx.render = push_struct_zero(ctx.arena_permanent_storage, TNT_Render);
+  ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
 
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, application_on_event);
@@ -65,7 +67,7 @@ void application_init(void) {
 void application_run(void) {
   Entity *ent = entity_create();
 
-  u32 shader_id = ctx.render->api->shader_load(
+  R_Shader base_shader = ctx.render->api->shader_load(
 			str8("./assets/shaders/base_vs.glsl"),
       str8("./assets/shaders/base_fs.glsl"));
 
@@ -84,7 +86,7 @@ void application_run(void) {
 
 		// draw quad
 		{
-			ctx.render->api->shader_bind(shader_id);
+			ctx.render->api->shader_bind(base_shader);
 			ctx.render->api->vertex_array_bind(vao);
       ctx.render->api->vertex_buffer_bind(vbo);
       ctx.render->api->vertex_buffer_update(ent->mesh->vertices, ent->mesh->vertex_count * sizeof(R_VertexData));

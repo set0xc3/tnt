@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(tnt.bin LANGUAGES C)
 
-add_subdirectory(code/libs/render)
+add_subdirectory(code/modules/render)
 
 if(LINUX)
     set(CMAKE_C_COMPILER "/usr/bin/clang")
@@ -23,24 +23,23 @@ endif()
 # Headers and sources
 # ==============================================================================
 
-set(HEADERS
+set(FILES
   code/tnt_application.h
+  code/tnt_application.c
   code/tnt_types.h
+  code/tnt_types_platform.h
   code/tnt_linked_list.h
+  code/tnt_linked_list.c
   code/tnt_logger.h
   code/tnt_os.h
-  code/tnt_platform.h
+  code/tnt_os.c
   code/tnt_render.h
+  code/tnt_render.c
   code/tnt_string.h
   code/tnt_math.h
   code/tnt_camera.h
-)
-
-set(SOURCES
-  code/tnt_application.c
-  code/tnt_linked_list.c
-  code/tnt_os.c
-  code/tnt_render.c
+  code/tnt_memory_arena.h
+  code/tnt_memory_arena.c
 )
 
 # ==============================================================================
@@ -48,7 +47,7 @@ set(SOURCES
 # ==============================================================================
 
 set(TARGET tnt.bin)
-add_executable(${TARGET} ${HEADERS} ${SOURCES})
+add_executable(${TARGET} ${FILES})
 
 # ==============================================================================
 # Vendor 
@@ -92,7 +91,7 @@ endif()
 if(WIN32)
     target_link_libraries(${TARGET} PRIVATE )
 elseif(LINUX)
-    target_link_libraries(${TARGET} PRIVATE X11 ${SDL2_LIBRARIES})
+    target_link_libraries(${TARGET} PRIVATE dl X11 ${SDL2_LIBRARIES})
 endif()
 
 # ==============================================================================

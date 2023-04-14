@@ -24,8 +24,8 @@ endif()
 set(TARGET ${PROJECT_NAME})
 add_library(${TARGET} SHARED
   ${ROOT_DIR}/vendor/glad/src/glad.c
-  lib_render_opengl.h
-  lib_render_opengl.c
+  render_opengl.h
+  render_opengl.c
 )
 target_include_directories(${TARGET} PRIVATE
     ${ROOT_DIR}/vendor/glad/include

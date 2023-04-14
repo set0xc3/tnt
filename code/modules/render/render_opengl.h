@@ -1,5 +1,5 @@
-#if !defined(LIB_RENDER_OPENGL_H)
-#define LIB_RENDER_OPENGL_H
+#if !defined(RENDER_OPENGL_H)
+#define RENDER_OPENGL_H
 
 #include "tnt_types.h"
 #include "tnt_string.h"
@@ -25,4 +25,4 @@ internal void gl_render_buffer_bind(u32 id);
 internal u32  gl_vertex_array_create(u32 vbo_id, void *buffer, u64 size);
 internal void gl_vertex_array_bind(u32 id);
 
-#endif // LIB_RENDER_OPENGL_H
+#endif // RENDER_OPENGL_H

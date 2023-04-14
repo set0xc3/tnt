@@ -1,6 +1,6 @@
 #include "tnt_logger.h"
 #include "tnt_os.h"
-#include "tnt_platform.h"
+#include "tnt_types_platform.h"
 #include "tnt_string.h"
 
 #include <dlfcn.h>
@@ -44,7 +44,9 @@ u64 os_page_size(void) {
   return size;
 }
 
-void os_sleep(u32 milliseconds) { usleep(milliseconds); }
+void os_sleep(u32 milliseconds) { 
+	usleep(milliseconds); 
+}
 
 void *os_library_load(String8 path) {
   void *result = 0;
@@ -54,7 +56,7 @@ void *os_library_load(String8 path) {
 	strncpy(str8_to_char(new_path), str8_to_char(path), str_len(new_path));
 	strncat(str8_to_char(new_path), PLATFORM_LIBRARY_EXTENSION, sizeof(new_path));
 
-  result = dlopen(str8_to_char(new_path), RTLD_LAZY);
+  result = dlopen(str8_to_char(new_path), RTLD_NOW);
   if (result) {
     return result;
   } else {
