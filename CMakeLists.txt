@@ -40,6 +40,8 @@ set(FILES
   code/tnt_camera.h
   code/tnt_memory_arena.h
   code/tnt_memory_arena.c
+  code/tnt_ui.h
+  code/tnt_ui.c
 )
 
 # ==============================================================================

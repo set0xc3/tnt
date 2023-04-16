@@ -2,7 +2,10 @@
 #include "tnt_os.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_video.h>
 
 b8 os_window_open(OS_Window *window, const char *title, u32 width, u32 height,
                   u32 xpos, u32 ypos) {
@@ -58,9 +61,14 @@ void os_window_poll_events(OS_Window *window) {
   SDL_PollEvent(&sdl_event);
 
   switch (sdl_event.type) {
-  	case SDL_QUIT: {
+  	case SDL_QUIT:
 			os_event.type = OS_EVENT_TYPE_APP_QUIT;
-  	} break;
+  	break;
+		case SDL_MOUSEMOTION:
+			os_event.type = OS_EVENT_TYPE_MOUSE_MOTION;
+			os_event.mouse_x = sdl_event.motion.x;	
+			os_event.mouse_y = sdl_event.motion.y;	
+		break;
 		case SDL_MOUSEBUTTONDOWN: 
 		case SDL_MOUSEBUTTONUP: {
 			os_event.type = OS_EVENT_TYPE_MOUSE_BUTTON;
@@ -70,9 +78,20 @@ void os_window_poll_events(OS_Window *window) {
 	 			case SDL_BUTTON_MIDDLE: os_event.code = OS_MOUSE_BUTTON_MIDDLE; break;
 	 			case SDL_BUTTON_RIGHT:  os_event.code = OS_MOUSE_BUTTON_RIGHT; break;
 	 		}
-		}
+		} break;
 		case SDL_KEYDOWN:
 		case SDL_KEYUP: {
+			os_event.type = OS_EVENT_TYPE_KEY_CODE;
+			os_event.state = sdl_event.key.state == SDL_PRESSED ? true : false;	
+			switch (sdl_event.key.keysym.sym) {
+	 			case SDLK_w: os_event.code = OS_KEYCODE_W; break;
+	 			case SDLK_s: os_event.code = OS_KEYCODE_S; break;
+	 			case SDLK_a: os_event.code = OS_KEYCODE_A; break;
+	 			case SDLK_d: os_event.code = OS_KEYCODE_D; break;
+	 			case SDLK_q: os_event.code = OS_KEYCODE_Q; break;
+	 			case SDLK_e: os_event.code = OS_KEYCODE_E; break;
+	 			case SDLK_ESCAPE: os_event.code = OS_KEYCODE_ESCAPE; break;
+	 		}
 		} break;
   }
 
@@ -84,4 +103,8 @@ void os_window_poll_events(OS_Window *window) {
 
 void os_window_set_event_callback(OS_Window *window, void *function) {
   window->event_callback = function;
+}
+
+void os_window_set_title(OS_Window *window, String8 title) {
+	SDL_SetWindowTitle((SDL_Window *)window->handle, str8_to_char(title));
 }

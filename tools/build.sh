@@ -20,7 +20,7 @@ echo "ROOT_DIR:   $ROOT_DIR"
 echo "BUILD_PATH: $BUILD_PATH"
 echo ==============================================================================
 
-gio trash "$ROOT_DIR/build" > /dev/null
+rm -r "$ROOT_DIR/build" > /dev/null
 
 mkdir -p "$BUILD_PATH"
 pushd "$BUILD_PATH/" > /dev/null

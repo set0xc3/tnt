@@ -8,9 +8,10 @@
 enum OS_EventType {
   OS_EVENT_TYPE_NONE,
   OS_EVENT_TYPE_APP_QUIT,
-  OS_EVENT_TYPE_MOUSE_BUTTON,
   OS_EVENT_TYPE_KEY_CODE,
-  OS_EVENT_TYPE_MOUSE_SCROLLED
+  OS_EVENT_TYPE_MOUSE_BUTTON,
+  OS_EVENT_TYPE_MOUSE_SCROLLED,
+  OS_EVENT_TYPE_MOUSE_MOTION
 };
 
 typedef struct OS_Event OS_Event;
@@ -18,17 +19,24 @@ struct OS_Event {
   u32 type;
   i32 state;
   u32 code;
+  f32 mouse_x, mouse_y;
+  f32 mouse_wheel_y;
 };
 
 enum OS_KeyCode {
+  OS_KEYCODE_NONE,
   OS_KEYCODE_A,
   OS_KEYCODE_D,
   OS_KEYCODE_S,
   OS_KEYCODE_W,
+  OS_KEYCODE_Q,
+  OS_KEYCODE_E,
+  OS_KEYCODE_ESCAPE,
   OS_KEYCODE_COUNT
 };
 
 enum OS_MouseButton {
+  OS_MOUSE_BUTTON_NONE,
   OS_MOUSE_BUTTON_LEFT,
   OS_MOUSE_BUTTON_MIDDLE,
   OS_MOUSE_BUTTON_RIGHT,
@@ -50,8 +58,6 @@ struct OS_Input {
 
 typedef struct OS_Window OS_Window;
 struct OS_Window {
-  LinkedList_Node node;
-
   const char *title;
   u32 width, height;
   u32 xpos, ypos;
@@ -87,6 +93,7 @@ b8      os_window_open(OS_Window *window, const char *title, u32 width, u32 heig
 void    os_window_close(OS_Window *window);
 void    os_window_poll_events(OS_Window *window);
 void    os_window_set_event_callback(OS_Window *window, void *function);
+void    os_window_set_title(OS_Window *window, String8 title);
 String8 os_file_read(String8 path);
 
 #endif // TNT_OS_H
