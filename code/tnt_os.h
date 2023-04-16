@@ -5,8 +5,9 @@
 #include "tnt_types.h"
 #include "tnt_string.h"
 
-enum {
+enum OS_EventType {
   OS_EVENT_TYPE_NONE,
+  OS_EVENT_TYPE_APP_QUIT,
   OS_EVENT_TYPE_MOUSE_BUTTON,
   OS_EVENT_TYPE_KEY_CODE,
   OS_EVENT_TYPE_MOUSE_SCROLLED
@@ -14,13 +15,12 @@ enum {
 
 typedef struct OS_Event OS_Event;
 struct OS_Event {
-  LinkedList_Node node;
   u32 type;
   i32 state;
   u32 code;
 };
 
-enum {
+enum OS_KeyCode {
   OS_KEYCODE_A,
   OS_KEYCODE_D,
   OS_KEYCODE_S,
@@ -28,7 +28,7 @@ enum {
   OS_KEYCODE_COUNT
 };
 
-enum {
+enum OS_MouseButton {
   OS_MOUSE_BUTTON_LEFT,
   OS_MOUSE_BUTTON_MIDDLE,
   OS_MOUSE_BUTTON_RIGHT,
@@ -85,7 +85,7 @@ void    os_input_get_mouse_delta(OS_Input *input, f32 *xdelta, f32 *ydelta);
 f32     os_input_get_mouse_scroll_y(OS_Input *input);
 b8      os_window_open(OS_Window *window, const char *title, u32 width, u32 height, u32 xpos, u32 ypos);
 void    os_window_close(OS_Window *window);
-b8      os_window_poll_events(OS_Window *window);
+void    os_window_poll_events(OS_Window *window);
 void    os_window_set_event_callback(OS_Window *window, void *function);
 String8 os_file_read(String8 path);
 

@@ -3,16 +3,36 @@
 
 #include "tnt_vector.h"
 
-typedef struct R_VertexData R_VertexData;
-struct R_VertexData {
-  V3F32 position; // 12 bytes
-  V4F32 color;    // 16 bytes
-  V2F32 uv;       // 8  bytes
-};                // 36 bytes
+enum R_DrawingMode {
+	DRAWING_MODE_POINTS,
+	DRAWING_MODE_LINES,
+	DRAWING_MODE_TRIANGLES,
+};
+
+typedef struct R_VertexAttribs R_VertexAttribs;
+struct R_VertexAttribs {
+	u64 size;
+	u64 type;
+	u64 stride;
+	u64 pointer;
+};
+
+typedef struct R_Vertex2D R_Vertex2D;
+struct R_Vertex2D {
+	V2F32 position;
+	V4F32 color;
+};
+
+typedef struct R_Vertex3D R_Vertex3D;
+struct R_Vertex3D {
+  V3F32 position;
+  V4F32 color;
+  V2F32 uv;
+};
 
 typedef struct R_Mesh R_Mesh;
 struct R_Mesh {
-	R_VertexData *vertices;
+	R_Vertex3D *vertices;
 	u64 vertex_count;
 };
 

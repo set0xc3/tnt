@@ -1,5 +1,6 @@
 #include "render_opengl.h"
 #include "tnt_render.h"
+#include "tnt_render_types.h"
 #include "tnt_types.h"
 #include "tnt_types_platform.h"
 #include "tnt_logger.h"
@@ -54,8 +55,14 @@ internal void gl_begin(R_Window *window, R_Context *context, V4F32 viewport) {
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-internal void gl_flush(R_Window *window, R_Mesh *mesh) {
-	glDrawArrays(GL_TRIANGLES, 0, mesh->vertex_count);
+internal void gl_flush(u32 drawing_mode, u64 vertex_count) {
+	u32 mode = 0;
+	switch (drawing_mode) {
+ 		case DRAWING_MODE_POINTS: mode = GL_POINTS; break;
+ 		case DRAWING_MODE_LINES: mode = GL_LINES; break;
+ 		case DRAWING_MODE_TRIANGLES: mode = GL_TRIANGLES; break;
+ 	}
+	glDrawArrays(mode, 0, vertex_count);
 }
 
 internal void gl_end(R_Window *window) {
@@ -167,17 +174,16 @@ internal void gl_render_buffer_bind(u32 id) {
 	glBindRenderbuffer(GL_RENDERBUFFER, id);
 }
 
-internal u32 gl_vertex_array_create(u32 vbo_id, void *buffer, u64 size) {
+internal u32 gl_vertex_array_create(u32 vbo_id, R_VertexAttribs *attribs, u32 size) {
 	u32 id = 0;
 	glCreateVertexArrays(1, &id);
 	glBindVertexArray(id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(R_VertexData), (void *)offsetof(R_VertexData, position));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(R_VertexData), (void *)offsetof(R_VertexData, color));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(R_VertexData), (void *)offsetof(R_VertexData, uv));
+	for (u64 i = 0; i < size; i += 1) {
+		R_VertexAttribs *attrib = &attribs[i];
+		glEnableVertexAttribArray(i);
+		glVertexAttribPointer(i, attrib->size, attrib->type, GL_FALSE, attrib->stride, (void *)attrib->pointer);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	return id;

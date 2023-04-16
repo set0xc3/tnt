@@ -1,4 +1,5 @@
 #include "tnt_os.h"
+#include "tnt_logger.h"
 
 void os_input_on_event(OS_Input *input, OS_Event *event) {
   switch (event->type) {
@@ -7,6 +8,7 @@ void os_input_on_event(OS_Input *input, OS_Event *event) {
   } break;
   case OS_EVENT_TYPE_MOUSE_BUTTON: {
     input->button[event->code] = event->state;
+		LOG_DEBUG("[Event] %i", event->state);
   } break;
   case OS_EVENT_TYPE_MOUSE_SCROLLED: {
     input->mouse_wheel_y += event->state;

@@ -27,12 +27,12 @@ union V4F32 {
   f32 v[4];
 };
 
-#define v2(t,x,y)     (t){{x,y}}
-#define v3(t,x,y,z)   (t){{x,y,z}}
-#define v4(t,x,y,z,w) (t){{x,y,z,w}}
+#define v2(x,y)     (V2F32){{x,y}}
+#define v3(x,y,z)   (V3F32){{x,y,z}}
+#define v4(x,y,z,w) (V4F32){{x,y,z,w}}
 
-#define v2_add(t,a,b) (t){a.x+b.x, a.y+b.y}
-#define v3_add(t,a,b) (t){a.x+b.x, a.y+b.y, a.z+b.z}
-#define v4_add(t,a,b) (t){a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w}
+#define v2_add(a,b) (V2F32){{a.x+b.x, a.y+b.y}}
+#define v3_add(a,b) (V3F32){{a.x+b.x, a.y+b.y, a.z+b.z}}
+#define v4_add(a,b) (V4F32){{a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w}}
 
 #endif // TNT_VECTOR_H

@@ -44,9 +44,9 @@ u64 os_page_size(void) {
   return size;
 }
 
-void os_sleep(u32 milliseconds) { 
-	usleep(milliseconds); 
-}
+// void os_sleep(u32 milliseconds) { 
+// 	usleep(milliseconds); 
+// }
 
 void *os_library_load(String8 path) {
   void *result = 0;

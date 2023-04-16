@@ -1,15 +1,80 @@
 #include "tnt_render.h"
 #include "tnt_os.h"
+#include "tnt_types.h"
+#include "tnt_types_platform.h"
+#include "tnt_logger.h"
 
-b8 render_load(TNT_Render *ctx, String8 path) {
+#define MAX_QUAD_COUNT 1000
+#define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
+#define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
+
+b8 render_load(TNT_Render *ctx, R_Window window_handle, String8 path) {
   ctx->handle = os_library_load(path);
   if (!ctx->handle) {
+		LOG_ERROR("[Render]: Failed load library");
+		ASSERT(true);
     return false;
   }
   ctx->api = os_library_load_symbol(ctx->handle, str8("api"));
+  if (!ctx->api) {
+		LOG_ERROR("[Render]: Failed load symbol library");
+		ASSERT(true);
+    return false;
+  }
+  ctx->api->init(window_handle);
   return true;
 }
 
 void render_unload(TNT_Render *ctx) { 
 	os_library_unload(ctx->handle); 
+}
+
+u32 debug_vbo, debug_vao = 0;
+R_Shader debug_shader = 0;
+
+void debug_render_init(TNT_Render *ctx) {
+  debug_shader = ctx->api->shader_load(
+		str8("./assets/shaders/debug_vs.glsl"),
+  	str8("./assets/shaders/debug_fs.glsl"));
+
+	R_VertexAttribs attribs[] = {
+		{2, 0x1406, sizeof(R_Vertex2D), offsetof(R_Vertex2D, position)},
+		{4, 0x1406, sizeof(R_Vertex2D), offsetof(R_Vertex2D, color)},
+	};
+
+  debug_vbo = ctx->api->vertex_buffer_create(0, 1000);
+  debug_vao = ctx->api->vertex_array_create(debug_vbo, attribs, ArrayCount(attribs));
+}
+
+void debug_draw_line_2d(TNT_Render *ctx, V2F32 v1, V2F32 v2, V4F32 color) {
+	R_Vertex2D vertices[] = {
+		{v1, color},
+		{v2, color},
+	};
+	ctx->api->shader_bind(debug_shader);
+  ctx->api->vertex_buffer_bind(debug_vbo);
+  ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
+	ctx->api->vertex_array_bind(debug_vao);
+	ctx->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
+}
+
+void debug_draw_quad_2d(TNT_Render *ctx, V2F32 position, V2F32 size, V4F32 color) {
+	f32 x = position.x;
+	f32 y = position.y;
+	f32 w = size.x;
+	f32 h = size.y;
+	R_Vertex2D vertices[] = {
+  	{v2(x,y), color},
+  	{v2(x+w,y), color},
+  	{v2(x+w,y+h), color},
+
+  	{v2(x+w,y+h), color},
+  	{v2(x,y+h), color},
+  	{v2(x,y), color},
+	};
+	ctx->api->shader_bind(debug_shader);
+  ctx->api->vertex_buffer_bind(debug_vbo);
+  ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
+	ctx->api->vertex_array_bind(debug_vao);
+	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }

@@ -14,6 +14,10 @@
 
 #include <SDL2/SDL.h>
 
+void os_sleep(u32 milliseconds) { 
+	SDL_Delay(milliseconds); 
+}
+
 u64 os_time_now(void) { 
 	return SDL_GetPerformanceCounter(); 
 }
