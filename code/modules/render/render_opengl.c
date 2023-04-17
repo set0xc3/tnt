@@ -47,7 +47,7 @@ internal void gl_destroy(R_Window *window) {
 	SDL_GL_DeleteContext(window);
 }
 
-internal void gl_begin(R_Window *window, R_Context *context, V4F32 viewport) {
+internal void gl_begin(R_Window *window, R_Context *context, Vec4F32 viewport) {
   gl_window_select(window, context);
 
   glViewport(viewport.x, viewport.y, viewport.z, viewport.w);

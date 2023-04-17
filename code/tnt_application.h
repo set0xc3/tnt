@@ -5,6 +5,7 @@
 #include "tnt_os.h"
 #include "tnt_render.h"
 #include "tnt_memory_arena.h"
+#include "tnt_ui.h"
 
 typedef struct ApplicationState ApplicationState;
 struct ApplicationState {
@@ -15,6 +16,7 @@ struct ApplicationState {
   TNT_Render      *render;
   OS_Window       *window;
 	OS_Event				*event_list;
+	UI_State				*ui;
 	u64							 event_index;
 };
 

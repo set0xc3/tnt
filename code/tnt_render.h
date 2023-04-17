@@ -11,7 +11,7 @@ struct TNT_RenderAPI {
   char *version;
   void (*init)(R_Window *window);
   void (*destroy)(R_Window *window);
-  void (*begin)(R_Window *window, R_Context *context, V4F32 viewport);
+  void (*begin)(R_Window *window, R_Context *context, Vec4F32 viewport);
   void (*flush)(u32 drawing_mode, u64 vertex_count);
   void (*end)(R_Window *window);
   u32  (*shader_load)(String8 vs_path, String8 fs_path);
@@ -39,7 +39,7 @@ b8   render_load(TNT_Render *ctx, R_Window window_handle, String8 path);
 void render_unload(TNT_Render *ctx);
 
 void debug_render_init(TNT_Render *ctx);
-void debug_draw_line_2d(TNT_Render *ctx, V2F32 v1, V2F32 v2, V4F32 color);
-void debug_draw_quad_2d(TNT_Render *ctx, V2F32 position, V2F32 size, V4F32 color);
+void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color);
+void debug_draw_rectangle_2d(TNT_Render *ctx, Vec2F32 position, Vec2F32 size, Vec4F32 color);
 
 #endif // TNT_RENDER_H

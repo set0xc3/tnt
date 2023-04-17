@@ -46,7 +46,7 @@ void debug_render_init(TNT_Render *ctx) {
   debug_vao = ctx->api->vertex_array_create(debug_vbo, attribs, ArrayCount(attribs));
 }
 
-void debug_draw_line_2d(TNT_Render *ctx, V2F32 v1, V2F32 v2, V4F32 color) {
+void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color) {
 	R_Vertex2D vertices[] = {
 		{v1, color},
 		{v2, color},
@@ -58,19 +58,19 @@ void debug_draw_line_2d(TNT_Render *ctx, V2F32 v1, V2F32 v2, V4F32 color) {
 	ctx->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
-void debug_draw_quad_2d(TNT_Render *ctx, V2F32 position, V2F32 size, V4F32 color) {
+void debug_draw_rectangle_2d(TNT_Render *ctx, Vec2F32 position, Vec2F32 size, Vec4F32 color) {
 	f32 x = position.x;
 	f32 y = position.y;
 	f32 w = size.x;
 	f32 h = size.y;
 	R_Vertex2D vertices[] = {
-  	{v2(x,y), color},
-  	{v2(x+w,y), color},
-  	{v2(x+w,y+h), color},
+  	{v2f32(x,y), color},
+  	{v2f32(x+w,y), color},
+  	{v2f32(x+w,y+h), color},
 
-  	{v2(x+w,y+h), color},
-  	{v2(x,y+h), color},
-  	{v2(x,y), color},
+  	{v2f32(x+w,y+h), color},
+  	{v2f32(x,y+h), color},
+  	{v2f32(x,y), color},
 	};
 	ctx->api->shader_bind(debug_shader);
   ctx->api->vertex_buffer_bind(debug_vbo);

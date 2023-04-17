@@ -7,7 +7,7 @@
 
 internal void gl_init(R_Window *window);
 internal void gl_destroy(R_Window *window);
-internal void gl_begin(R_Window *window, R_Context *context, V4F32 viewport);
+internal void gl_begin(R_Window *window, R_Context *context, Vec4F32 viewport);
 internal void gl_flush(u32 drawing_mode, u64 vertex_count);
 internal void gl_end(R_Window *window);
 internal void gl_window_select(R_Window *window, R_Context *ctx);

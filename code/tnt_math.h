@@ -1,5 +1,7 @@
-#if defined(TNT_MATH_H)
+#if !defined(TNT_MATH_H)
 #define TNT_MATH_H
+
+#include "tnt_types.h"
 
 typedef union Mat3 Mat3;
 union Mat3 {

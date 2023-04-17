@@ -4,6 +4,7 @@
 #include "tnt_render_types.h"
 #include "tnt_string.h"
 #include "tnt_types.h"
+#include "tnt_ui.h"
 #include "tnt_vector.h"
 
 ApplicationState ctx = {0};
@@ -19,6 +20,7 @@ void application_init(void) {
   ctx.input  = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
   ctx.render = push_struct_zero(ctx.arena_permanent_storage, TNT_Render);
   ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
+  ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
 
 	ctx.event_list = (OS_Event *)push_array_zero(ctx.arena_transient_storage, OS_Event, 1000);
 
@@ -53,9 +55,9 @@ void application_run(void) {
 
 		if (ms_per_frame >= period_max) 
 		{
-			// if (ms_per_frame >= 1.f) {
+			if (ms_per_frame >= 1.f) {
 				ms_per_frame = period_max;
-			// }
+			}
 
 			if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
 				LOG_DEBUG("[APP] Input: OS_MOUSE_BUTTON_LEFT down");
@@ -68,9 +70,10 @@ void application_run(void) {
 				LOG_DEBUG("[APP] Input: OS_KEYCODE_ESCAPE");
 			}
 
-			local_variable V2F32 mouse_pos = v2(0.0f, 0.0f);
+			local_variable Vec2F32 mouse_pos = v2f32(0.0f, 0.0f);
 			os_input_get_mouse_position(ctx.input, &mouse_pos.x, &mouse_pos.y);
-			mouse_pos = v2((mouse_pos.x/ctx.window->width*2)-1.0f, -(mouse_pos.y/ctx.window->height*2)+1.0f);
+			mouse_pos = v2f32((mouse_pos.x/ctx.window->width*2)-1.0f, -(mouse_pos.y/ctx.window->height*2)+1.0f);
+			ctx.ui->mouse_pos = mouse_pos;
 			// LOG_DEBUG("[APP] Mouse: %f,%f", mouse_pos.x, mouse_pos.y);
 
 			char *title = (char *)push_array_zero(ctx.arena_transient_storage, char, 1024);
@@ -78,7 +81,7 @@ void application_run(void) {
 			os_window_set_title(ctx.window, str8(title));
 
 			local_variable f32 player_speed = 1.0f;
-			local_variable V2F32 player_pos = v2(0.0f, 0.0f);
+			local_variable Vec2F32 player_pos = v2f32(0.0f, 0.0f);
 			if (os_input_key_pressed(ctx.input, OS_KEYCODE_W)) {
 				player_pos.y += player_speed * ms_per_frame;
 			}	
@@ -100,25 +103,36 @@ void application_run(void) {
 				// 	frame_per_sec = period_max;
 				// }
 
- 		  	ctx.render->api->begin(ctx.window->handle, ctx.window->render, v4(0.0f, 0.0f, ctx.window->width, ctx.window->height));
+ 		  	ctx.render->api->begin(ctx.window->handle, ctx.window->render, v4f32(0.0f, 0.0f, ctx.window->width, ctx.window->height));
 
-				debug_draw_quad_2d(ctx.render, v2(-1.0f, -1.0f), v2(2.0f, 2.0f), v4(0.6f, 0.6f, 0.6f, 1.0f));
+#if 0
+				debug_draw_rectangle_2d(ctx.render, v2f32(-1.0f, -1.0f), v2f32(2.0f, 2.0f), v4f32(0.6f, 0.6f, 0.6f, 1.0f));
 
 				local_variable f32 x = 0;
-				debug_draw_quad_2d(ctx.render, v2(x, 0.0f), v2(0.1f, 0.1f), v4(1.0f, 0.0f, 1.0f, 1.0f));
-				debug_draw_quad_2d(ctx.render, v2(-x, 0.1f), v2(0.1f, 0.1f), v4(0.0f, 0.0f, 1.0f, 1.0f));
-				debug_draw_quad_2d(ctx.render, v2(mouse_pos.x, mouse_pos.y), v2(0.1f, 0.1f), v4(0.0f, 1.0f, 0.0f, 1.0f));
-				debug_draw_quad_2d(ctx.render, v2(player_pos.x, player_pos.y), v2(0.1f, 0.1f), v4(1.0f, 1.0f, 0.0f, 1.0f));
+				debug_draw_rectangle_2d(ctx.render, v2f32(x, 0.0f), v2f32(0.1f, 0.1f), v4f32(1.0f, 0.0f, 1.0f, 1.0f));
+				debug_draw_rectangle_2d(ctx.render, v2f32(-x, 0.1f), v2f32(0.1f, 0.1f), v4f32(0.0f, 0.0f, 1.0f, 1.0f));
+				debug_draw_rectangle_2d(ctx.render, v2f32(mouse_pos.x, mouse_pos.y), v2f32(0.1f, 0.1f), v4f32(0.0f, 1.0f, 0.0f, 1.0f));
+				debug_draw_rectangle_2d(ctx.render, v2f32(player_pos.x, player_pos.y), v2f32(0.1f, 0.1f), v4f32(1.0f, 1.0f, 0.0f, 1.0f));
 
-				debug_draw_line_2d(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 1.0f), v4(1.0f, 0.0f, 0.0f, 1.0f));
-				debug_draw_line_2d(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 2.0f), v4(0.0f, 1.0f, 0.0f, 1.0f));
-				debug_draw_line_2d(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 3.0f), v4(1.0f, 1.0f, 0.0f, 1.0f));
+				debug_draw_line_2d(ctx.render, v2f32(0.0f, 0.0f), v2f32(mouse_pos.x, mouse_pos.y), v4f32(1.0f, 0.0f, 0.0f, 1.0f));
+				debug_draw_line_2d(ctx.render, v2f32(0.0f, 0.0f), v2f32(1.0f, 2.0f), v4f32(0.0f, 1.0f, 0.0f, 1.0f));
+				debug_draw_line_2d(ctx.render, v2f32(0.0f, 0.0f), v2f32(1.0f, 3.0f), v4f32(1.0f, 1.0f, 0.0f, 1.0f));
 
 				x += 1.0f * (f32)ms_per_frame;
 
 				if (x >= 1.0f) {
 					x = 0.0f;
 				}
+#endif
+
+				ui_begin(ctx.ui, v2f32(0.0f, 0.0f));
+				for (u64 i = 0; i < 8; i += 1) {
+			 		if (ui_button(ctx.ui, ctx.render, v4f32(1.0f/i, 0.0f, 1.0f/i, 1.0f), v2f32(0.1f, 0.1f), i+1)) {
+						LOG_DEBUG("[UI] Button:%lu: click", i);
+					}
+				}
+				ui_end(ctx.ui);
+
 
     		ctx.render->api->end(ctx.window->handle);
 
@@ -149,6 +163,9 @@ void application_process_events(void) {
     		os_window_close(ctx.window);
     		ctx.is_quit = true;
 				return;
+			break;
+			case OS_EVENT_TYPE_MOUSE_BUTTON:
+				ctx.ui->mouse_button = event->state;
 			break;
 		}
     os_input_on_event(ctx.input, event);
