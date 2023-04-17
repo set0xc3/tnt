@@ -1,7 +1,7 @@
 #if !defined(TNT_RENDER_TYPES_H)
 #define TNT_RENDER_TYPES_H
 
-#include "tnt_vector.h"
+#include "tnt_math.h"
 
 enum R_DrawingMode {
 	DRAWING_MODE_POINTS,

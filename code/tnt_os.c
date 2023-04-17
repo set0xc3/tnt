@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "tnt_types_platform.h"
 
 #include "tnt_os_input.c"
 #include "tnt_os_window.c"

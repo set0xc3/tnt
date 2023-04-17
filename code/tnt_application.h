@@ -1,11 +1,14 @@
-#ifndef TNT_APPLICATION_H
+#if !defined(TNT_APPLICATION_H)
 #define TNT_APPLICATION_H
 
 #include "tnt_types.h"
+#include "tnt_memory_arena.h"
 #include "tnt_os.h"
 #include "tnt_render.h"
-#include "tnt_memory_arena.h"
 #include "tnt_ui.h"
+#include "tnt_camera.h"
+
+#define OS_EVENTS_CAPACITY 256
 
 typedef struct ApplicationState ApplicationState;
 struct ApplicationState {
@@ -15,9 +18,10 @@ struct ApplicationState {
   OS_Input        *input;
   TNT_Render      *render;
   OS_Window       *window;
-	OS_Event				*event_list;
+	void	     			*event_buffer;
+	u64       			 events_count;
 	UI_State				*ui;
-	u64							 event_index;
+	Camera					*camera;
 };
 
 void application_init(void);

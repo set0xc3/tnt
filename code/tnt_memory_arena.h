@@ -28,7 +28,7 @@ TNT_MemoryArena *arena_create_default(void);
 void       			 arena_release(TNT_MemoryArena *arena);
 u8        			*arena_push(TNT_MemoryArena *arena, u64 size);
 u8        			*arena_push_zero(TNT_MemoryArena *arena, u64 size);
-void       			 arena_pop(TNT_MemoryArena *arena, u64 size);
+u8       			  *arena_pop(TNT_MemoryArena *arena, u64 size);
 void       			 arena_clear(TNT_MemoryArena *arena);
 u64        			 arena_get_offset(TNT_MemoryArena *arena);
 

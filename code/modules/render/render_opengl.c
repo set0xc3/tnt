@@ -2,7 +2,6 @@
 #include "tnt_render.h"
 #include "tnt_render_types.h"
 #include "tnt_types.h"
-#include "tnt_types_platform.h"
 #include "tnt_logger.h"
 #include "tnt_string.h"
 #include "tnt_os.h"
@@ -33,6 +32,7 @@ EXPORT TNT_RenderAPI api = {
 	gl_render_buffer_bind,
 	gl_vertex_array_create,
 	gl_vertex_array_bind,
+	gl_uniform_mat4_set,
 };
 
 internal void gl_init(R_Window *window) {
@@ -73,17 +73,18 @@ internal void gl_window_select(R_Window *window, R_Context *context) {
   SDL_GL_MakeCurrent((SDL_Window *)window, (SDL_GLContext)context);
 }
 
-internal u32 gl_shader_load(String8 vs_path, String8 fs_path) { 
+internal u32 gl_shader_load(String8 vs_path, String8 fs_path, String8 gs_path) { 
 	u32 result = 0;
   i32 success = 0;
-  char buffer_log[1024] = {0};
+  char buffer_log[256] = {0};
 
-  String8 vs_code = os_file_read(vs_path);
-  String8 fs_code = os_file_read(fs_path);
+  String8 vs_source = os_file_read(vs_path);
+  String8 fs_source = os_file_read(fs_path);
+  String8 gs_source = os_file_read(gs_path);
 
   // Create and compile vertex shader
   u32 vs_id = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vs_id, 1, (const GLchar**)&vs_code.data, 0);
+  glShaderSource(vs_id, 1, (const GLchar**)&vs_source.data, 0);
   glCompileShader(vs_id);
   glGetShaderiv(vs_id, GL_COMPILE_STATUS, &success);
   if (!success) {
@@ -93,23 +94,43 @@ internal u32 gl_shader_load(String8 vs_path, String8 fs_path) {
 
   // Create and compile fragment shader
   u32 fs_id = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fs_id, 1, (const GLchar**)&fs_code.data, 0);
+  glShaderSource(fs_id, 1, (const GLchar**)&fs_source.data, 0);
   glCompileShader(fs_id);
-  glGetShaderiv(vs_id, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(fs_id, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(fs_id, 4096, 0, buffer_log);
     LOG_ERROR("Shader fragment compilation failed: %s", buffer_log);
   }
 
+  u32 gs_id = 0;
+	if (str_len(gs_source)) {
+  	// Create and compile fragment shader
+		gs_id = glCreateShader(GL_GEOMETRY_SHADER);
+  	glShaderSource(gs_id, 1, (const GLchar**)&gs_source.data, 0);
+  	glCompileShader(gs_id);
+  	glGetShaderiv(gs_id, GL_COMPILE_STATUS, &success);
+  	if (!success) {
+    	glGetShaderInfoLog(gs_id, Megabytes(4), 0, buffer_log);
+    	LOG_ERROR("Shader geometry compilation failed: %s", buffer_log);
+  	}
+	}
+
+
   // Create program, attach shaders to it, and link it
   result = glCreateProgram();
   glAttachShader(result, vs_id);
   glAttachShader(result, fs_id);
+	if (str_len(gs_source)) {
+  	glAttachShader(result, gs_id);
+	}
   glLinkProgram(result);
 
   // Clear
   glDeleteShader(vs_id);
   glDeleteShader(fs_id);
+	if (str_len(gs_source)) {
+  	glDeleteShader(gs_id);
+	}
 
   return result;
 }
@@ -193,3 +214,6 @@ internal void gl_vertex_array_bind(u32 id) {
 	glBindVertexArray(id);
 }
 
+internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat) {
+	glUniformMatrix4fv(glGetUniformLocation(id, str8_to_char(name)), 1, GL_FALSE, mat);
+}

@@ -1,18 +1,15 @@
 #include "tnt_ui.h"
-#include "tnt_vector.h"
-#include "tnt_types_platform.h"
 #include "tnt_render.h"
-#include "tnt_logger.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-void ui_begin(UI_State *ctx, Vec2F32 pos)
+void ui_begin(UI_State *ctx, Vec2F32 pos, f32 pad)
 {
 	UI_Layout layout = {0};
 	layout.kind = UI_LayoutKind_Horizontal;
 	layout.pos  = pos;
-	layout.pad  = 0.01f;
+	layout.pad  = pad;
 	ui_layout_push(ctx, layout);
 }
 

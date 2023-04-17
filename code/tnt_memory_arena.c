@@ -1,6 +1,5 @@
 #include "tnt_memory_arena.h"
 #include "tnt_logger.h"
-#include "tnt_types_platform.h"
 #include "tnt_os.h"
 
 #define BASE_ADDRESS Terabytes(1)
@@ -18,6 +17,8 @@ TNT_MemoryArena *arena_create_default(void) {
 }
 
 void arena_release(TNT_MemoryArena *arena) { 
+	ASSERT(!arena);
+
 	free(arena->data); 
 	free(arena); 
 }
@@ -42,13 +43,14 @@ u8 *arena_push_zero(TNT_MemoryArena *arena, u64 size) {
 }
 
 
-void arena_pop(TNT_MemoryArena *arena, u64 size) {
+u8 *arena_pop(TNT_MemoryArena *arena, u64 size) {
   if (arena->offset - size < 0) {
     LOG_FATAL("Handle out-of-memory");
 		ASSERT(true);
   }
-  u8 *pos = (u8 *)arena->offset - size;
   arena->offset -= size;
+  u8 *pos = (u8 *)arena->offset - size;
+	return pos;
 }
 
 void arena_clear(TNT_MemoryArena *arena) { 

@@ -1,16 +1,35 @@
 #include "tnt_application.h"
+#include "tnt_camera.h"
 #include "tnt_logger.h"
 #include "tnt_os.h"
 #include "tnt_render_types.h"
 #include "tnt_string.h"
 #include "tnt_types.h"
 #include "tnt_ui.h"
-#include "tnt_vector.h"
+#include "tnt_math.h"
 
 ApplicationState ctx = {0};
 
+void push_entity(OS_Event *event) {
+	ASSERT(ctx.events_count > OS_EVENTS_CAPACITY);
+
+	OS_Event *pos = ctx.event_buffer+ctx.events_count;
+	memcpy(pos, event, sizeof(OS_Event));
+	ctx.events_count += 1;
+}
+
+OS_Event *pop_entity() {
+	ASSERT(ctx.events_count < 0);
+
+	OS_Event *pos = ctx.event_buffer+ctx.events_count;
+	memset(pos, 0, sizeof(OS_Event));
+	ctx.events_count -= 1;
+	pos = ctx.event_buffer+ctx.events_count;
+	return pos;
+}
+
 OS_Event *get_entity(u64 index) {
-	OS_Event *result = (OS_Event *)ctx.event_list + index;
+	OS_Event *result = ctx.event_buffer+index;
 	return result;
 }
 
@@ -20,9 +39,10 @@ void application_init(void) {
   ctx.input  = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
   ctx.render = push_struct_zero(ctx.arena_permanent_storage, TNT_Render);
   ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
-  ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
+  ctx.ui     = push_struct_zero(ctx.arena_permanent_storage, UI_State);
+  ctx.camera = push_struct_zero(ctx.arena_permanent_storage, Camera);
 
-	ctx.event_list = (OS_Event *)push_array_zero(ctx.arena_transient_storage, OS_Event, 1000);
+	ctx.event_buffer = push_array_zero(ctx.arena_transient_storage, OS_Event, OS_EVENTS_CAPACITY);
 
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, application_on_event);
@@ -53,59 +73,55 @@ void application_run(void) {
 	  os_window_poll_events(ctx.window);
 		application_process_events();
 
+		if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+			// LOG_DEBUG("[APP] Input: OS_MOUSE_BUTTON_LEFT down");
+		}
+		if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+			// LOG_DEBUG("[APP] Input: OS_MOUSE_BUTTON_LEFT up");
+		}
+		if (os_input_key_up(ctx.input, OS_KEYCODE_ESCAPE)) {
+			ctx.is_quit = true;	
+			// LOG_DEBUG("[APP] Input: OS_KEYCODE_ESCAPE");
+		}
+
+		local_variable Vec2F32 mouse_pos = v2f32(0.0f, 0.0f);
+		os_input_get_mouse_position(ctx.input, &mouse_pos.x, &mouse_pos.y);
+		mouse_pos = v2f32((mouse_pos.x/ctx.window->width*2)-1.0f, -(mouse_pos.y/ctx.window->height*2)+1.0f);
+		ctx.ui->mouse_pos = mouse_pos; // TODO
+
 		if (ms_per_frame >= period_max) 
 		{
 			if (ms_per_frame >= 1.f) {
 				ms_per_frame = period_max;
 			}
 
-			if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
-				LOG_DEBUG("[APP] Input: OS_MOUSE_BUTTON_LEFT down");
+			// Input
+			local_variable f32 player_speed = 1.0f;
+			local_variable Vec2F32 player_pos = v2f32(0.0f, 0.0f);
+			{
+				if (os_input_key_pressed(ctx.input, OS_KEYCODE_W)) {
+					player_pos.y += player_speed * ms_per_frame;
+				}	
+				if (os_input_key_pressed(ctx.input, OS_KEYCODE_S)) {
+					player_pos.y -= player_speed * ms_per_frame;
+				}
+				if (os_input_key_pressed(ctx.input, OS_KEYCODE_A)) {
+					player_pos.x -= player_speed * ms_per_frame;
+				}	
+				if (os_input_key_pressed(ctx.input, OS_KEYCODE_D)) {
+					player_pos.x += player_speed * ms_per_frame;
+				}
 			}
-			if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
-				LOG_DEBUG("[APP] Input: OS_MOUSE_BUTTON_LEFT up");
-			}
-			if (os_input_key_up(ctx.input, OS_KEYCODE_ESCAPE)) {
-				ctx.is_quit = true;	
-				LOG_DEBUG("[APP] Input: OS_KEYCODE_ESCAPE");
-			}
-
-			local_variable Vec2F32 mouse_pos = v2f32(0.0f, 0.0f);
-			os_input_get_mouse_position(ctx.input, &mouse_pos.x, &mouse_pos.y);
-			mouse_pos = v2f32((mouse_pos.x/ctx.window->width*2)-1.0f, -(mouse_pos.y/ctx.window->height*2)+1.0f);
-			ctx.ui->mouse_pos = mouse_pos;
-			// LOG_DEBUG("[APP] Mouse: %f,%f", mouse_pos.x, mouse_pos.y);
 
 			char *title = (char *)push_array_zero(ctx.arena_transient_storage, char, 1024);
 			sprintf(title, "FPS: %.03ff/s, %.03fms/f | Mouse: %.03ff, %.03ff", fps, ms_per_frame, mouse_pos.x, mouse_pos.y);
 			os_window_set_title(ctx.window, str8(title));
 
-			local_variable f32 player_speed = 1.0f;
-			local_variable Vec2F32 player_pos = v2f32(0.0f, 0.0f);
-			if (os_input_key_pressed(ctx.input, OS_KEYCODE_W)) {
-				player_pos.y += player_speed * ms_per_frame;
-			}	
-			if (os_input_key_pressed(ctx.input, OS_KEYCODE_S)) {
-				player_pos.y -= player_speed * ms_per_frame;
-			}
-			if (os_input_key_pressed(ctx.input, OS_KEYCODE_A)) {
-				player_pos.x -= player_speed * ms_per_frame;
-			}	
-			if (os_input_key_pressed(ctx.input, OS_KEYCODE_D)) {
-				player_pos.x += player_speed * ms_per_frame;
-			}
-
-			// local_variable f64 frame_per_sec = 0;
-			// frame_per_sec += ms_per_frame;
-			// if (frame_per_sec >= period_max)
+			// Render
 			{
-				// if (frame_per_sec >= 1.0f) {
-				// 	frame_per_sec = period_max;
-				// }
-
  		  	ctx.render->api->begin(ctx.window->handle, ctx.window->render, v4f32(0.0f, 0.0f, ctx.window->width, ctx.window->height));
 
-#if 0
+#if 1
 				debug_draw_rectangle_2d(ctx.render, v2f32(-1.0f, -1.0f), v2f32(2.0f, 2.0f), v4f32(0.6f, 0.6f, 0.6f, 1.0f));
 
 				local_variable f32 x = 0;
@@ -125,7 +141,7 @@ void application_run(void) {
 				}
 #endif
 
-				ui_begin(ctx.ui, v2f32(0.0f, 0.0f));
+				ui_begin(ctx.ui, v2f32(0.0f, 0.0f), 0.01f);
 				for (u64 i = 0; i < 8; i += 1) {
 			 		if (ui_button(ctx.ui, ctx.render, v4f32(1.0f/i, 0.0f, 1.0f/i, 1.0f), v2f32(0.1f, 0.1f), i+1)) {
 						LOG_DEBUG("[UI] Button:%lu: click", i);
@@ -135,11 +151,7 @@ void application_run(void) {
 
 
     		ctx.render->api->end(ctx.window->handle);
-
-				// LOG_DEBUG("[APP] fps: %.02ff/s, %.03fms/f", 1000.0f/(frame_per_sec * 1000.0f), frame_per_sec);
-				// frame_per_sec = 0;
 			}
-			// LOG_DEBUG("[APP] fps: %.02ff/s, %.03fms/f", 1000.0f/(ms_per_frame * 1000.0f), ms_per_frame);
 			end_counter = begin_counter;
 		}
 		os_sleep((u32)ms_per_frame);
@@ -147,16 +159,14 @@ void application_run(void) {
 }
 
 void application_on_event(OS_Event *event) {
-	OS_Event *e = ctx.event_list + ctx.event_index;
-	memcpy(e, event, sizeof(OS_Event));
-	ctx.event_index += 1;
+	push_entity(event);
 }
 
 void application_process_events(void) {
 	OS_Event *event = 0;
   os_input_update(ctx.input);
 
-  for (u64 i = 0; i < ctx.event_index; i += 1) {
+  for (u64 i = 0; i < ctx.events_count; i += 1) {
 		event = get_entity(i);
 		switch (event->type) {
 			case OS_EVENT_TYPE_APP_QUIT:
@@ -169,7 +179,6 @@ void application_process_events(void) {
 			break;
 		}
     os_input_on_event(ctx.input, event);
-		memset(event, 0, sizeof(OS_Event));
-	  ctx.event_index -= 1;
+		pop_entity();
   }
 }

@@ -27,7 +27,6 @@ set(FILES
   code/tnt_application.h
   code/tnt_application.c
   code/tnt_types.h
-  code/tnt_types_platform.h
   code/tnt_linked_list.h
   code/tnt_linked_list.c
   code/tnt_logger.h
@@ -37,7 +36,9 @@ set(FILES
   code/tnt_render.c
   code/tnt_string.h
   code/tnt_math.h
+  code/tnt_math.c
   code/tnt_camera.h
+  code/tnt_camera.c
   code/tnt_memory_arena.h
   code/tnt_memory_arena.c
   code/tnt_ui.h
@@ -64,6 +65,7 @@ find_package(SDL2 REQUIRED)
 target_include_directories(${TARGET} PRIVATE 
     ${PROJECT_SOURCE_DIR}/code
     ${PROJECT_SOURCE_DIR}/vendor/glad/include
+    ${PROJECT_SOURCE_DIR}/vendor/cglm-0.8.9/include
   	${SDL2_INCLUDE_DIR}
 )
 target_link_libraries(${TARGET} PRIVATE -Wl,--export-dynamic)
@@ -93,7 +95,7 @@ endif()
 if(WIN32)
     target_link_libraries(${TARGET} PRIVATE )
 elseif(LINUX)
-    target_link_libraries(${TARGET} PRIVATE dl X11 ${SDL2_LIBRARIES})
+    target_link_libraries(${TARGET} PRIVATE m dl X11 ${SDL2_LIBRARIES})
 endif()
 
 # ==============================================================================

@@ -2,7 +2,7 @@
 #define TNT_UI_H
 
 #include "tnt_types.h"
-#include "tnt_vector.h"
+#include "tnt_math.h"
 #include "tnt_render.h"
 
 #define UI_LAYOUTS_CAPACITY 256
@@ -35,7 +35,7 @@ struct UI_State
 	u64       layouts_count;
 };
 
-void       ui_begin(UI_State *ctx, Vec2F32 pos);
+void       ui_begin(UI_State *ctx, Vec2F32 pos, f32 pad);
 void       ui_begin_layout(UI_LayoutKind kind);
 b32        ui_button(UI_State *ctx, TNT_Render *render, Vec4F32 color, Vec2F32 size, UI_Id id);
 void       ui_end_layout();

@@ -3,7 +3,7 @@
 
 #include "tnt_types.h"
 #include "tnt_string.h"
-#include "tnt_vector.h"
+#include "tnt_math.h"
 #include "tnt_render_types.h"
 
 typedef struct TNT_RenderAPI TNT_RenderAPI;
@@ -14,7 +14,7 @@ struct TNT_RenderAPI {
   void (*begin)(R_Window *window, R_Context *context, Vec4F32 viewport);
   void (*flush)(u32 drawing_mode, u64 vertex_count);
   void (*end)(R_Window *window);
-  u32  (*shader_load)(String8 vs_path, String8 fs_path);
+  u32  (*shader_load)(String8 vs_path, String8 fs_path, String8 gs_path);
   void (*shader_bind)(u32 id);
 	u32  (*index_buffer_create)(void *buffer, u64 size);
 	void (*index_buffer_bind)(u32 id);
@@ -27,12 +27,16 @@ struct TNT_RenderAPI {
 	void (*render_buffer_bind)(u32 id);
 	u32  (*vertex_array_create)(u32 vbo_id, R_VertexAttribs *attribs, u32 size);
 	void (*vertex_array_bind)(u32 id);
+	void (*uniform_mat4_set)(u32 id, String8 name, f32 *mat);
 };
 
 typedef struct TNT_Render TNT_Render;
 struct TNT_Render {
-  void *handle;
+  void          *handle;
   TNT_RenderAPI *api;
+	u32            debug_vbo; 
+	u32            debug_vao;
+	R_Shader       debug_shader;
 };
 
 b8   render_load(TNT_Render *ctx, R_Window window_handle, String8 path);

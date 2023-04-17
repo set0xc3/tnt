@@ -1,7 +1,6 @@
 #if !defined(TNT_OS_H)
 #define TNT_OS_H
 
-#include "tnt_linked_list.h"
 #include "tnt_types.h"
 #include "tnt_string.h"
 

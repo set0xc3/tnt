@@ -1,7 +1,6 @@
 #include "tnt_render.h"
 #include "tnt_os.h"
 #include "tnt_types.h"
-#include "tnt_types_platform.h"
 #include "tnt_logger.h"
 
 #define MAX_QUAD_COUNT 1000
@@ -29,21 +28,20 @@ void render_unload(TNT_Render *ctx) {
 	os_library_unload(ctx->handle); 
 }
 
-u32 debug_vbo, debug_vao = 0;
-R_Shader debug_shader = 0;
-
 void debug_render_init(TNT_Render *ctx) {
-  debug_shader = ctx->api->shader_load(
+  ctx->debug_shader = ctx->api->shader_load(
 		str8("./assets/shaders/debug_vs.glsl"),
-  	str8("./assets/shaders/debug_fs.glsl"));
+  	str8("./assets/shaders/debug_fs.glsl"),
+		str8(""));
 
+	// TODO(duck): 0x1406 = GL_FLOAT
 	R_VertexAttribs attribs[] = {
-		{2, 0x1406, sizeof(R_Vertex2D), offsetof(R_Vertex2D, position)},
-		{4, 0x1406, sizeof(R_Vertex2D), offsetof(R_Vertex2D, color)},
+		{2, 0x1406, sizeof(R_Vertex2D), GetMember(R_Vertex2D, position)},
+		{4, 0x1406, sizeof(R_Vertex2D), GetMember(R_Vertex2D, color)},
 	};
 
-  debug_vbo = ctx->api->vertex_buffer_create(0, 1000);
-  debug_vao = ctx->api->vertex_array_create(debug_vbo, attribs, ArrayCount(attribs));
+  ctx->debug_vbo = ctx->api->vertex_buffer_create(0, 1000);
+  ctx->debug_vao = ctx->api->vertex_array_create(ctx->debug_vbo, attribs, ArrayCount(attribs));
 }
 
 void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color) {
@@ -51,10 +49,10 @@ void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color) 
 		{v1, color},
 		{v2, color},
 	};
-	ctx->api->shader_bind(debug_shader);
-  ctx->api->vertex_buffer_bind(debug_vbo);
+	ctx->api->shader_bind(ctx->debug_shader);
+  ctx->api->vertex_buffer_bind(ctx->debug_vbo);
   ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
-	ctx->api->vertex_array_bind(debug_vao);
+	ctx->api->vertex_array_bind(ctx->debug_vao);
 	ctx->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
@@ -72,9 +70,9 @@ void debug_draw_rectangle_2d(TNT_Render *ctx, Vec2F32 position, Vec2F32 size, Ve
   	{v2f32(x,y+h), color},
   	{v2f32(x,y), color},
 	};
-	ctx->api->shader_bind(debug_shader);
-  ctx->api->vertex_buffer_bind(debug_vbo);
+	ctx->api->shader_bind(ctx->debug_shader);
+  ctx->api->vertex_buffer_bind(ctx->debug_vbo);
   ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
-	ctx->api->vertex_array_bind(debug_vao);
+	ctx->api->vertex_array_bind(ctx->debug_vao);
 	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }
