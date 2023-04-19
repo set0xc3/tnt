@@ -43,6 +43,8 @@ set(FILES
   code/tnt_memory_arena.c
   code/tnt_ui.h
   code/tnt_ui.c
+  code/tnt_net.h
+  code/tnt_net.c
 )
 
 # ==============================================================================

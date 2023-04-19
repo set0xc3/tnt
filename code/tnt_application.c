@@ -5,10 +5,9 @@
 #include "tnt_render_types.h"
 #include "tnt_string.h"
 #include "tnt_types.h"
-#include "tnt_ui.h"
 #include "tnt_math.h"
 
-ApplicationState ctx = {0};
+global_variable ApplicationState ctx = {0};
 
 void push_entity(OS_Event *event) {
 	ASSERT(ctx.events_count > OS_EVENTS_CAPACITY);
