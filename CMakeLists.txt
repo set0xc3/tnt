@@ -45,6 +45,8 @@ set(FILES
   code/tnt_ui.c
   code/tnt_net.h
   code/tnt_net.c
+  code/tnt_thread.h
+  code/tnt_thread.c
 )
 
 # ==============================================================================
@@ -67,7 +69,6 @@ find_package(SDL2 REQUIRED)
 target_include_directories(${TARGET} PRIVATE 
     ${PROJECT_SOURCE_DIR}/code
     ${PROJECT_SOURCE_DIR}/vendor/glad/include
-    ${PROJECT_SOURCE_DIR}/vendor/cglm-0.8.9/include
   	${SDL2_INCLUDE_DIR}
 )
 target_link_libraries(${TARGET} PRIVATE -Wl,--export-dynamic)

@@ -6,7 +6,7 @@
             "name":         "(debug) Launch Program",
             "type":         "cppdbg",
             "request":      "launch",
-            "args":         ["server"],
+            "args":         [],
             "stopAtEntry":  false,
             "windows": {
                 "cwd":        "${workspaceFolder}/build/debug",

@@ -32,6 +32,8 @@ typedef i64 b64;
 
 typedef uintptr_t uintptr;
 
+typedef void* Function;
+
 #define Bytes(value)     (value)
 #define Kilobytes(value) (value << 10)
 #define Megabytes(value) (value << 20)
