@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
-internal void log_info(const char* tag, const char* fmt, ...) {
+internal void log_info(const char *tag, const char *fmt, ...)
+{
 	local_variable char log_buffer[1024];
 	sprintf(log_buffer, "%s", tag);
 	va_list va;
@@ -18,10 +19,10 @@ internal void log_info(const char* tag, const char* fmt, ...) {
 	va_end(va);
 }
 
-#define LOG_INFO(...)    log_info("[INFO]    ", ##__VA_ARGS__)
-#define LOG_DEBUG(...)   log_info("[DEBUG]   ", ##__VA_ARGS__)
+#define LOG_INFO(...) log_info("[INFO]    ", ##__VA_ARGS__)
+#define LOG_DEBUG(...) log_info("[DEBUG]   ", ##__VA_ARGS__)
 #define LOG_WARNING(...) log_info("[WARNIG]  ", ##__VA_ARGS__)
-#define LOG_ERROR(...)   log_info("[ERROR]   ", ##__VA_ARGS__)
-#define LOG_FATAL(...)   log_info("[FATAL]   ", ##__VA_ARGS__)
+#define LOG_ERROR(...) log_info("[ERROR]   ", ##__VA_ARGS__)
+#define LOG_FATAL(...) log_info("[FATAL]   ", ##__VA_ARGS__)
 
-#endif //LOGGER_H
+#endif // LOGGER_H

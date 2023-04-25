@@ -3,7 +3,7 @@
 
 #include "tnt_types.h"
 
-u64  os_thread_create(Function func);
+u64 os_thread_create(Function func);
 void os_thread_run();
 
 #endif // TNT_THREAD_H

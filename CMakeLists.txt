@@ -40,29 +40,29 @@ message("CMAKE_ARCHIVE_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 find_package(SDL2 REQUIRED)
 set(FILES
-code/tnt_application.h
-code/tnt_application.c
-code/tnt_types.h
-code/tnt_linked_list.h
-code/tnt_linked_list.c
-code/tnt_logger.h
-code/tnt_os.h
-code/tnt_os.c
-code/tnt_render.h
-code/tnt_render.c
-code/tnt_string.h
-code/tnt_math.h
-code/tnt_math.c
-code/tnt_camera.h
-code/tnt_camera.c
-code/tnt_memory_arena.h
-code/tnt_memory_arena.c
-code/tnt_ui.h
-code/tnt_ui.c
-code/tnt_net.h
-code/tnt_net.c
-code/tnt_thread.h
-code/tnt_thread.c
+	code/tnt_application.h
+	code/tnt_application.c
+	code/tnt_types.h
+	code/tnt_linked_list.h
+	code/tnt_linked_list.c
+	code/tnt_logger.h
+	code/tnt_os.h
+	code/tnt_os.c
+	code/tnt_render.h
+	code/tnt_render.c
+	code/tnt_string.h
+	code/tnt_math.h
+	code/tnt_math.c
+	code/tnt_camera.h
+	code/tnt_camera.c
+	code/tnt_memory_arena.h
+	code/tnt_memory_arena.c
+	code/tnt_ui.h
+	code/tnt_ui.c
+	code/tnt_net.h
+	code/tnt_net.c
+	code/tnt_thread.h
+	code/tnt_thread.c
 )
 add_executable(${TARGET} ${FILES})
 target_include_directories(${TARGET} PRIVATE
@@ -72,6 +72,7 @@ target_include_directories(${TARGET} PRIVATE
 )
 # target_link_libraries(${TARGET} PRIVATE -Wl,-rpath,${CMAKE_BINARY_DIR}/mylib-${PLATFORM}-${CMAKE_BUILD_TYPE}-${ARCH})
 target_link_libraries(${TARGET} PRIVATE -Wl,--export-dynamic)
+set_property(TARGET ${TARGET} PROPERTY C_STANDARD 99)
 
 add_custom_target(run
     COMMAND cd ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} && ./${TARGET} ${ARGS}

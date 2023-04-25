@@ -7,7 +7,9 @@ out vec4 our_color;
 
 uniform mat4 mpv;
 
-void main() {
-  gl_Position = vec4(a_position.x, a_position.y, 0.0f, 1.0f);
+void main()
+{
+  gl_Position = mpv * vec4(a_position.x, a_position.y, 1.0f, 1.0f);
 	our_color = a_color;
 }
+

@@ -3,10 +3,10 @@
 void camera_create(Camera *ctx, Vec3F32 position, Vec3F32 up, f32 yaw, f32 pitch, f32 aspect)
 {
 	ctx->position = position;
-	ctx->up 	    = up;
-	ctx->yaw 	    = yaw;
-	ctx->pitch    = pitch;
-	ctx->aspect 	= aspect;
+	ctx->up = up;
+	ctx->yaw = yaw;
+	ctx->pitch = pitch;
+	ctx->aspect = aspect;
 }
 
 void camera_destroy(Camera *ctx)
@@ -16,7 +16,6 @@ void camera_destroy(Camera *ctx)
 
 void camera_vectors_update(Camera *ctx)
 {
-	
 }
 
 Vec3F32 camera_position_get(Camera *ctx)
@@ -26,7 +25,7 @@ Vec3F32 camera_position_get(Camera *ctx)
 
 Vec3F32 camera_forward_get(Camera *ctx)
 {
-	return (Vec3F32){0}; 
+	return (Vec3F32){0};
 }
 
 // f32 *camera_view_matrix_get(Camera *ctx)
@@ -40,4 +39,3 @@ Vec3F32 camera_forward_get(Camera *ctx)
 // mat4 camera_project_matrix(Camera *ctx)
 // {
 // }
-

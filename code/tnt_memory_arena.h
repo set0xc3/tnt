@@ -14,8 +14,9 @@ Scratch/Temporary Allocation
 // API
 
 typedef struct TNT_MemoryArena TNT_MemoryArena;
-struct TNT_MemoryArena {
-	u8 *data;
+struct TNT_MemoryArena
+{
+  u8 *data;
   u64 size;
   u64 offset;
 };
@@ -25,12 +26,12 @@ struct TNT_MemoryArena {
 
 TNT_MemoryArena *arena_create(u64 size);
 TNT_MemoryArena *arena_create_default(void);
-void       			 arena_release(TNT_MemoryArena *arena);
-u8        			*arena_push(TNT_MemoryArena *arena, u64 size);
-u8        			*arena_push_zero(TNT_MemoryArena *arena, u64 size);
-u8       			  *arena_pop(TNT_MemoryArena *arena, u64 size);
-void       			 arena_clear(TNT_MemoryArena *arena);
-u64        			 arena_get_offset(TNT_MemoryArena *arena);
+void arena_release(TNT_MemoryArena *arena);
+u8 *arena_push(TNT_MemoryArena *arena, u64 size);
+u8 *arena_push_zero(TNT_MemoryArena *arena, u64 size);
+u8 *arena_pop(TNT_MemoryArena *arena, u64 size);
+void arena_clear(TNT_MemoryArena *arena);
+u64 arena_get_offset(TNT_MemoryArena *arena);
 
 // Helpers
 
@@ -43,13 +44,14 @@ u64        			 arena_get_offset(TNT_MemoryArena *arena);
 // MemoryArenaTemp
 
 typedef struct TNT_MemoryArenaTemp TNT_MemoryArenaTemp;
-struct TNT_MemoryArenaTemp {
+struct TNT_MemoryArenaTemp
+{
   TNT_MemoryArena *arena;
   u64 offset;
 };
 
 TNT_MemoryArenaTemp arena_temp_begin(TNT_MemoryArena *arena);
-void 			    			arena_temp_end(TNT_MemoryArenaTemp temp);
+void arena_temp_end(TNT_MemoryArenaTemp temp);
 TNT_MemoryArenaTemp arena_get_scratch(TNT_MemoryArena *arena);
 
 #endif // TNT_MEMORY_ARENA_H

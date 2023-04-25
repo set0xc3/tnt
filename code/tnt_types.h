@@ -8,40 +8,40 @@
 #include <stdarg.h>
 #include <string.h>
 
-#define local_variable  static
+#define local_variable static
 #define global_variable static
-#define internal        static
+#define internal static
 
-typedef int8_t  i8;
+typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
 
-typedef uint8_t  u8;
+typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-typedef float  f32;
+typedef float f32;
 typedef double f64;
 
-typedef i8  b8;
+typedef i8 b8;
 typedef i16 b16;
 typedef i32 b32;
 typedef i64 b64;
 
 typedef uintptr_t uintptr;
 
-typedef void* Function;
+typedef void *Function;
 
-#define Bytes(value)     (value)
+#define Bytes(value) (value)
 #define Kilobytes(value) (value << 10)
 #define Megabytes(value) (value << 20)
 #define Gigabytes(value) ((u64)(value) << 30)
 #define Terabytes(value) ((u64)(value) << 40)
 
 #define ArrayCount(a) (sizeof((a)) / sizeof(*(a)))
-#define GetMember(st, m) ((u64)&(((st *)0)->m))
+#define GetMember(st, m) ((u64) & (((st *)0)->m))
 
 #ifdef __gnu_linux__
 #define PLATFORM_LINUX
@@ -60,7 +60,11 @@ typedef void* Function;
 #define STATIC_ASSERT_BREAK(expr) _Static_assert((expr), "(" #expr ") failed")
 
 #ifdef ENABLE_ASSERT
-#define ASSERT(expr) if (expr){ ASSERT_BREAK(); }
+#define ASSERT(expr)    \
+    if (expr)           \
+    {                   \
+        ASSERT_BREAK(); \
+    }
 #define STATIC_ASSERT(expr) STATIC_ASSERT_BREAK(expr)
 #else
 #define ASSERT(expr)
@@ -73,14 +77,14 @@ typedef void* Function;
 #define PLATFORM_LIBRARY_EXTENSION ".dll"
 #else
 #error missing platform detection
-#endif 
+#endif
 
 #ifdef __WIN32__
 #define EXPORT __declspec(dllexport)
-#define IMPORT __declspec(dllimport) 
+#define IMPORT __declspec(dllimport)
 #else
-#define EXPORT __attribute__ ((visibility ("default")))
+#define EXPORT __attribute__((visibility("default")))
 #define IMPORT
 #endif
 
-#endif //TNT_TYPES_H
+#endif // TNT_TYPES_H
