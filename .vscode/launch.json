@@ -3,34 +3,40 @@
     "configurations": 
     [
         {
-            "name":         "(debug) Launch Program",
-            "type":         "cppdbg",
-            "request":      "launch",
-            "args":         ["server"],
-            "stopAtEntry":  false,
-            "windows": {
-                "cwd":        "${workspaceFolder}/build/debug",
-                "program":    "${workspaceFolder}/build/debug/tnt.exe",
-            },
-            "linux": {
-                "cwd":        "${workspaceFolder}/build/debug",
-                "program":    "${workspaceFolder}/build/debug/tnt.bin",
-            },
-        },
-        {
-            "name":         "(release) Launch Program",
+            "name":         "(tnt-linux-debug-x32) Launch Program",
             "type":         "cppdbg",
             "request":      "launch",
             "args":         [],
             "stopAtEntry":  false,
-            "windows": {
-                "cwd":        "${workspaceFolder}/build/release",
-                "program":    "${workspaceFolder}/build/release/tnt.exe",
-            },
-            "linux": {
-                "cwd":        "${workspaceFolder}/build/release",
-                "program":    "${workspaceFolder}/build/release/tnt.bin",
-            },
-        }
+            "cwd":        "${workspaceFolder}/build/tnt-linux-debug-x32",
+            "program":    "${workspaceFolder}/build/tnt-linux-debug-x32/tnt",
+        },
+        {
+            "name":         "(tnt-linux-debug-x64) Launch Program",
+            "type":         "cppdbg",
+            "request":      "launch",
+            "args":         [],
+            "stopAtEntry":  false,
+            "cwd":        "${workspaceFolder}/build/tnt-linux-debug-x64",
+            "program":    "${workspaceFolder}/build/tnt-linux-debug-x64/tnt",
+        },
+        {
+            "name":         "(tnt-windows-debug-x32) Launch Program",
+            "type":         "cppdbg",
+            "request":      "launch",
+            "args":         [],
+            "stopAtEntry":  false,
+            "cwd":        "${workspaceFolder}/build/tnt-linux-debug-x32",
+            "program":    "${workspaceFolder}/build/tnt-linux-debug-x32/tnt.exe",
+        },
+        {
+            "name":         "(tnt-windows-debug-x64) Launch Program",
+            "type":         "cppdbg",
+            "request":      "launch",
+            "args":         [],
+            "stopAtEntry":  false,
+            "cwd":        "${workspaceFolder}/build/tnt-windows-debug-x64",
+            "program":    "${workspaceFolder}/build/tnt-windows-debug-x64/tnt.exe",
+        },
     ]
 }  

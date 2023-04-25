@@ -1,99 +1,90 @@
-cmake_minimum_required(VERSION 3.5)
-project(tnt.bin LANGUAGES C)
+cmake_minimum_required(VERSION 3.10)
+set(TARGET tnt)
+project(${TARGET} LANGUAGES C)
 
-add_subdirectory(code/modules/render)
+add_subdirectory(code/render)
 
-if(LINUX)
-    set(CMAKE_C_COMPILER "/usr/bin/clang")
-    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+# Set the platform
+if(NOT DEFINED PLATFORM)
+    message(FATAL_ERROR "MY_PARAMETER is not defined")
 endif()
 
-message("CMAKE_BUILD_TYPE:   ${CMAKE_BUILD_TYPE}")
-message("CMAKE_C_COMPILER:   ${CMAKE_C_COMPILER}")
-message("CMAKE_CXX_COMPILER: ${CMAKE_CXX_COMPILER}")
-
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message("Setting build type to 'Debug' as none was specified.")
-
-  set(CMAKE_BUILD_TYPE Debug)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+# Set the build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE debug)
 endif()
 
-# ==============================================================================
-# Headers and sources
-# ==============================================================================
+# Set the architecture
+if(NOT DEFINED ARCH)
+    set(ARCH "x32")
+endif()
 
-set(FILES
-  code/tnt_application.h
-  code/tnt_application.c
-  code/tnt_types.h
-  code/tnt_linked_list.h
-  code/tnt_linked_list.c
-  code/tnt_logger.h
-  code/tnt_os.h
-  code/tnt_os.c
-  code/tnt_render.h
-  code/tnt_render.c
-  code/tnt_string.h
-  code/tnt_math.h
-  code/tnt_math.c
-  code/tnt_camera.h
-  code/tnt_camera.c
-  code/tnt_memory_arena.h
-  code/tnt_memory_arena.c
-  code/tnt_ui.h
-  code/tnt_ui.c
-  code/tnt_net.h
-  code/tnt_net.c
-  code/tnt_thread.h
-  code/tnt_thread.c
-)
+set(BUILD_DIR ${CMAKE_BINARY_DIR}/${TARGET}-${PLATFORM}-${CMAKE_BUILD_TYPE}-${ARCH})
+set(CMAKE_BINARY_DIR ${BUILD_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DIR})
 
-# ==============================================================================
-# Target definition
-# ==============================================================================
+message("PLATFORM:         ${PLATFORM}")
+message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message("ARCH:             ${ARCH}")
+message("COMPILER:         ${CMAKE_C_COMPILER_ID}")
 
-set(TARGET tnt.bin)
-add_executable(${TARGET} ${FILES})
-
-# ==============================================================================
-# Vendor 
-# ==============================================================================
+message("CMAKE_SOURCE_DIR:               ${CMAKE_SOURCE_DIR}")
+message("CMAKE_BINARY_DIR:               ${CMAKE_BINARY_DIR}")
+message("CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+message("CMAKE_LIBRARY_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+message("CMAKE_ARCHIVE_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 find_package(SDL2 REQUIRED)
-
-# ==============================================================================
-# External
-# ==============================================================================
-
-target_include_directories(${TARGET} PRIVATE 
-    ${PROJECT_SOURCE_DIR}/code
-    ${PROJECT_SOURCE_DIR}/vendor/glad/include
-  	${SDL2_INCLUDE_DIR}
+set(FILES
+code/tnt_application.h
+code/tnt_application.c
+code/tnt_types.h
+code/tnt_linked_list.h
+code/tnt_linked_list.c
+code/tnt_logger.h
+code/tnt_os.h
+code/tnt_os.c
+code/tnt_render.h
+code/tnt_render.c
+code/tnt_string.h
+code/tnt_math.h
+code/tnt_math.c
+code/tnt_camera.h
+code/tnt_camera.c
+code/tnt_memory_arena.h
+code/tnt_memory_arena.c
+code/tnt_ui.h
+code/tnt_ui.c
+code/tnt_net.h
+code/tnt_net.c
+code/tnt_thread.h
+code/tnt_thread.c
 )
+add_executable(${TARGET} ${FILES})
+target_include_directories(${TARGET} PRIVATE
+    ${SDL2_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/vendor/glad/include
+    ${CMAKE_SOURCE_DIR}/code
+)
+# target_link_libraries(${TARGET} PRIVATE -Wl,-rpath,${CMAKE_BINARY_DIR}/mylib-${PLATFORM}-${CMAKE_BUILD_TYPE}-${ARCH})
 target_link_libraries(${TARGET} PRIVATE -Wl,--export-dynamic)
 
-# ==============================================================================
-# Target properties
-# ==============================================================================
+add_custom_target(run
+    COMMAND cd ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} && ./${TARGET} ${ARGS}
+)
 
-set_target_properties(${TARGET} PROPERTIES C_STANDARD 11)
-set_target_properties(${TARGET} PROPERTIES C_EXTENSIONS ON)
-
-# ==============================================================================
-# Compile options
-# ==============================================================================
-
-if(MSVC)
-    target_compile_options(${TARGET} PRIVATE /W3 /D_CRT_SECURE_NO_WARNINGS)
-    target_compile_options(${TARGET} PRIVATE /fp:fast)
+# Compiler check
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(${TARGET} PRIVATE -Wall -Werror -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-but-set-parameter)
 else()
-    target_compile_options(${TARGET} PRIVATE -O0 -g -DENABLE_ASSERT -Wall -Werror -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-but-set-parameter)
+    if(MSVC)
+    	target_compile_options(${TARGET} PRIVATE /W3)
+    endif()
 endif()
-
-# ==============================================================================
-# Link libraries
-# ==============================================================================
 
 if(WIN32)
     target_link_libraries(${TARGET} PRIVATE )
@@ -101,10 +92,8 @@ elseif(LINUX)
     target_link_libraries(${TARGET} PRIVATE m dl X11 ${SDL2_LIBRARIES})
 endif()
 
-# ==============================================================================
-# Asset files
-# ==============================================================================
 
+# Asset files
 set(ASSETS_SRC "${CMAKE_SOURCE_DIR}/assets")
 set(ASSETS_DST "$<TARGET_FILE_DIR:${TARGET}>/assets")
 
@@ -117,10 +106,6 @@ else()
 endif()
 
 add_custom_command(TARGET ${TARGET} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo
-    "${ASSETS_MSG}: ${ASSETS_SRC} to ${ASSETS_DST}"
-)
-add_custom_command(TARGET ${TARGET} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E ${ASSETS_CMD}
-    "${ASSETS_SRC}" "${ASSETS_DST}"
+    COMMAND ${CMAKE_COMMAND} -E echo "${ASSETS_MSG}: ${ASSETS_SRC} to ${ASSETS_DST}"
+    COMMAND ${CMAKE_COMMAND} -E ${ASSETS_CMD} "${ASSETS_SRC}" "${ASSETS_DST}"
 )

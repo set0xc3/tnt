@@ -51,7 +51,8 @@ void *os_library_load(String8 path) {
 	strncpy(str8_to_char(new_path), str8_to_char(path), str_len(new_path));
 	strncat(str8_to_char(new_path), PLATFORM_LIBRARY_EXTENSION, sizeof(new_path));
 
-  result = dlopen(str8_to_char(new_path), RTLD_NOW);
+  // result = dlopen(str8_to_char(new_path), RTLD_NOW);
+  result = dlopen("./librender_opengl.so", RTLD_NOW);
   if (result) {
     return result;
   } else {
