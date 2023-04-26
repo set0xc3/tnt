@@ -67,18 +67,29 @@ void os_window_poll_events(OS_Window *window)
 
 	switch (sdl_event.type)
 	{
+	case SDL_WINDOWEVENT:
+		switch (sdl_event.window.event)
+		{
+		case SDL_WINDOWEVENT_RESIZED:
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			os_event.kind = OS_EVENT_KIND_WINDOW_RESIZED;
+			os_event.window_width = sdl_event.window.data1;
+			os_event.window_height = sdl_event.window.data2;
+			break;
+		}
+		break;
 	case SDL_QUIT:
-		os_event.type = OS_EVENT_TYPE_APP_QUIT;
+		os_event.kind = OS_EVENT_KIND_APP_QUIT;
 		break;
 	case SDL_MOUSEMOTION:
-		os_event.type = OS_EVENT_TYPE_MOUSE_MOTION;
+		os_event.kind = OS_EVENT_KIND_MOUSE_MOTION;
 		os_event.mouse_x = sdl_event.motion.x;
 		os_event.mouse_y = sdl_event.motion.y;
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 	{
-		os_event.type = OS_EVENT_TYPE_MOUSE_BUTTON;
+		os_event.kind = OS_EVENT_KIND_MOUSE_BUTTON;
 		os_event.state = sdl_event.button.state == SDL_PRESSED ? true : false;
 		switch (sdl_event.button.button)
 		{
@@ -97,7 +108,7 @@ void os_window_poll_events(OS_Window *window)
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 	{
-		os_event.type = OS_EVENT_TYPE_KEY_CODE;
+		os_event.kind = OS_EVENT_KIND_KEY_CODE;
 		os_event.state = sdl_event.key.state == SDL_PRESSED ? true : false;
 		switch (sdl_event.key.keysym.sym)
 		{
@@ -127,7 +138,7 @@ void os_window_poll_events(OS_Window *window)
 	break;
 	}
 
-	if (os_event.type != OS_EVENT_TYPE_NONE)
+	if (os_event.kind != OS_EVENT_KIND_NONE)
 	{
 		window->event_callback(&os_event);
 		memset(&os_event, 0, sizeof(OS_Event));

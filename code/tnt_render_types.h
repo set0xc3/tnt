@@ -22,16 +22,15 @@ struct R_VertexAttribs
 typedef struct R_Vertex2D R_Vertex2D;
 struct R_Vertex2D
 {
-	Vec2F32 position;
-	Vec4F32 color;
+	Vec2 position;
+	Vec4 color;
 };
 
 typedef struct R_Vertex3D R_Vertex3D;
 struct R_Vertex3D
 {
-	Vec3F32 position;
-	Vec4F32 color;
-	Vec2F32 uv;
+	Vec3 position;
+	Vec4 color;
 };
 
 typedef struct R_Mesh R_Mesh;

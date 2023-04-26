@@ -35,11 +35,11 @@ u64 arena_get_offset(TNT_MemoryArena *arena);
 
 // Helpers
 
-#define push_array(arena, type, count) arena_push(arena, sizeof(type) * count)
-#define push_array_zero(arena, type, count) arena_push_zero(arena, sizeof(type) * count)
+#define push_array(arena, type, count) (type *)arena_push(arena, sizeof(type) * count)
+#define push_array_zero(arena, type, count) (type *)arena_push_zero(arena, sizeof(type) * count)
 #define push_struct(arena, type) (type *)push_array(arena, type, 1)
 #define push_struct_zero(arena, type) (type *)push_array_zero(arena, type, 1)
-#define pop_array(arena, type, count) arena_pop(arena, sizeof(type) * count)
+#define pop_array(arena, type, count) (type *)arena_pop(arena, sizeof(type) * count)
 
 // MemoryArenaTemp
 

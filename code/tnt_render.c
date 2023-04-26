@@ -32,24 +32,37 @@ void render_unload(TNT_Render *ctx)
 	os_library_unload(ctx->handle);
 }
 
-void debug_render_init(TNT_Render *ctx)
+void render_init(TNT_Render *ctx)
 {
 	ctx->debug_shader = ctx->api->shader_load(
 		str8("./assets/shaders/debug_vs.glsl"),
 		str8("./assets/shaders/debug_fs.glsl"),
 		str8(""));
 
+	ctx->default_shader = ctx->api->shader_load(
+		str8("./assets/shaders/default_vs.glsl"),
+		str8("./assets/shaders/default_fs.glsl"),
+		str8(""));
+
 	// TODO(duck): 0x1406 = GL_FLOAT
-	R_VertexAttribs attribs[] = {
+	R_VertexAttribs debug_attribs[] = {
 		{2, 0x1406, sizeof(R_Vertex2D), GetMember(R_Vertex2D, position)},
 		{4, 0x1406, sizeof(R_Vertex2D), GetMember(R_Vertex2D, color)},
 	};
 
-	ctx->debug_vbo = ctx->api->vertex_buffer_create(0, 1000);
-	ctx->debug_vao = ctx->api->vertex_array_create(ctx->debug_vbo, attribs, ArrayCount(attribs));
+	R_VertexAttribs default_attribs[] = {
+		{3, 0x1406, sizeof(R_Vertex3D), GetMember(R_Vertex3D, position)},
+		{4, 0x1406, sizeof(R_Vertex3D), GetMember(R_Vertex3D, color)},
+	};
+
+	ctx->default_vbo = ctx->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
+	ctx->default_vao = ctx->api->vertex_array_create(ctx->default_vbo, default_attribs, ArrayCount(default_attribs));
+
+	ctx->debug_vbo = ctx->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
+	ctx->debug_vao = ctx->api->vertex_array_create(ctx->debug_vbo, debug_attribs, ArrayCount(debug_attribs));
 }
 
-void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color)
+void draw_line(TNT_Render *ctx, Vec2 v1, Vec2 v2, Vec4 color)
 {
 	R_Vertex2D vertices[] = {
 		{v1, color},
@@ -62,24 +75,74 @@ void debug_draw_line_2d(TNT_Render *ctx, Vec2F32 v1, Vec2F32 v2, Vec4F32 color)
 	ctx->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
-void debug_draw_rectangle_2d(TNT_Render *ctx, Vec2F32 position, Vec2F32 size, Vec4F32 color)
+void draw_rectangle(TNT_Render *ctx, Vec2 position, Vec2 size, Vec4 color)
 {
 	f32 x = position.x;
 	f32 y = position.y;
 	f32 w = size.x;
 	f32 h = size.y;
 	R_Vertex2D vertices[] = {
-		{v2f32(x, y), color},
-		{v2f32(x + w, y), color},
-		{v2f32(x + w, y + h), color},
+		{v2(x, y), color},
+		{v2(x + w, y), color},
+		{v2(x + w, y + h), color},
 
-		{v2f32(x + w, y + h), color},
-		{v2f32(x, y + h), color},
-		{v2f32(x, y), color},
+		{v2(x + w, y + h), color},
+		{v2(x, y + h), color},
+		{v2(x, y), color},
 	};
 	ctx->api->shader_bind(ctx->debug_shader);
 	ctx->api->vertex_buffer_bind(ctx->debug_vbo);
 	ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
 	ctx->api->vertex_array_bind(ctx->debug_vao);
+	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
+}
+
+void draw_cube(TNT_Render *ctx, Vec3 position, Vec2 size, Vec4 color)
+{
+	f32 x = position.x;
+	f32 y = position.y;
+	f32 z = position.y;
+	f32 w = size.x;
+	f32 h = size.y;
+	R_Vertex3D vertices[] = {
+		{v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, 0.5f, -0.5f), color},
+		{v3(0.5f, 0.5f, -0.5f), color},
+		{v3(-0.5f, 0.5f, -0.5f), color},
+		{v3(-0.5f, -0.5f, -0.5f), color},
+
+		{v3(-0.5f, -0.5f,  0.5f), color},
+		{v3(0.5f, -0.5f,  0.5f), color},
+		{v3(0.5f,  0.5f,  0.5f), color},
+		{v3(0.5f,  0.5f,  0.5f), color},
+		{v3(-0.5f,  0.5f,  0.5f), color},
+		{v3(-0.5f, -0.5f,  0.5f), color},
+
+		{v3(-0.5f,  0.5f,  0.5f), color},
+		{v3(-0.5f,  0.5f, -0.5f), color},
+		{v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(-0.5f, -0.5f,  0.5f), color},
+		{v3(-0.5f,  0.5f,  0.5f), color},
+
+		{v3(0.5f,  0.5f,  0.5f), color},
+		{v3(0.5f,  0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f,  0.5f), color},
+		{v3(0.5f,  0.5f,  0.5f), color},
+		
+		{v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f, -0.5f), color},
+		{v3(0.5f, -0.5f,  0.5f), color},
+		{v3(0.5f, -0.5f,  0.5f), color},
+		{v3(-0.5f, -0.5f,  0.5f), color},
+		// {v3(-0.5f, -0.5f, -0.5f), color},
+	};
+	ctx->api->shader_bind(ctx->default_shader);
+	ctx->api->vertex_buffer_bind(ctx->default_vbo);
+	ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
+	ctx->api->vertex_array_bind(ctx->default_vao);
 	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }

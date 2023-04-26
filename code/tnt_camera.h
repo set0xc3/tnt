@@ -7,23 +7,18 @@
 typedef struct Camera Camera;
 struct Camera
 {
-	Vec3F32 position;
-	Vec3F32 front;
-	Vec3F32 up;
-	Vec3F32 right;
-	Vec3F32 world_up;
+	Vec3 position;
+	Vec3 front;
+	Vec3 up;
+	Vec3 right;
+	Vec3 world_up;
 
 	f32 yaw;
 	f32 pitch;
 	f32 aspect;
 };
 
-void camera_create(Camera *ctx, Vec3F32 position, Vec3F32 up, f32 yaw, f32 pitch, f32 aspect);
+void camera_create(Camera *ctx, Vec3 position, Vec3 up, f32 yaw, f32 pitch, f32 aspect);
 void camera_destroy(Camera *ctx);
-void camera_vectors_update(Camera *ctx);
-Vec3F32 camera_position_get(Camera *ctx);
-Vec3F32 camera_forward_get(Camera *ctx);
-// f32 	  *camera_view_matrix_get(Camera *ctx);
-// mat4 	  camera_project_matrix(Camera *ctx);
 
 #endif // TNT_CAMERA_H

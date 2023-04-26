@@ -1,17 +1,16 @@
 #include "tnt_os.h"
-#include "tnt_logger.h"
 
 void os_input_on_event(OS_Input *input, OS_Event *event)
 {
-  switch (event->type)
+  switch (event->kind)
   {
-  case OS_EVENT_TYPE_KEY_CODE:
+  case OS_EVENT_KIND_KEY_CODE:
     input->key[event->code] = event->state;
     break;
-  case OS_EVENT_TYPE_MOUSE_BUTTON:
+  case OS_EVENT_KIND_MOUSE_BUTTON:
     input->button[event->code] = event->state;
     break;
-  case OS_EVENT_TYPE_MOUSE_MOTION:
+  case OS_EVENT_KIND_MOUSE_MOTION:
     input->mouse_x = event->mouse_x;
     input->mouse_y = event->mouse_y;
     break;

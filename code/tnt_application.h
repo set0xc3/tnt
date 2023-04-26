@@ -19,7 +19,7 @@ struct ApplicationState
   OS_Input *input;
   TNT_Render *render;
   OS_Window *window;
-  void *event_buffer;
+  OS_Event *events;
   u64 events_count;
   UI_State *ui;
   Camera *camera;

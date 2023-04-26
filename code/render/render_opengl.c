@@ -43,6 +43,7 @@ internal void gl_init(R_Window *window)
 		ASSERT(true);
 		exit(1);
 	}
+	glEnable(GL_DEPTH_TEST);
 }
 
 internal void gl_destroy(R_Window *window)
@@ -50,13 +51,13 @@ internal void gl_destroy(R_Window *window)
 	SDL_GL_DeleteContext(window);
 }
 
-internal void gl_begin(R_Window *window, R_Context *context, Vec4F32 viewport)
+internal void gl_begin(R_Window *window, R_Context *context, Vec4 viewport)
 {
 	gl_window_select(window, context);
 
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 internal void gl_flush(u32 drawing_mode, u64 vertex_count)

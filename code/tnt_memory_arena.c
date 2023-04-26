@@ -2,12 +2,10 @@
 #include "tnt_logger.h"
 #include "tnt_os.h"
 
-#define BASE_ADDRESS Terabytes(1)
-
 TNT_MemoryArena *arena_create(u64 size)
 {
-  TNT_MemoryArena *arena = os_memory_alloc((void *)BASE_ADDRESS, sizeof(TNT_MemoryArena));
-  arena->data = os_memory_alloc((void *)BASE_ADDRESS, size);
+  TNT_MemoryArena *arena = os_memory_alloc(0, sizeof(TNT_MemoryArena));
+  arena->data = os_memory_alloc(0, size);
   arena->size = size;
   arena->offset = 0;
   return arena;
@@ -51,7 +49,7 @@ u8 *arena_push_zero(TNT_MemoryArena *arena, u64 size)
 
 u8 *arena_pop(TNT_MemoryArena *arena, u64 size)
 {
-  if (arena->offset - size < 0)
+  if (arena->offset == 0 || arena->offset > arena->size)
   {
     LOG_FATAL("Handle out-of-memory");
     ASSERT(true);

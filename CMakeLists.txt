@@ -63,6 +63,8 @@ set(FILES
 	code/tnt_net.c
 	code/tnt_thread.h
 	code/tnt_thread.c
+	code/tnt_entity.h
+	code/tnt_entity.c
 )
 add_executable(${TARGET} ${FILES})
 target_include_directories(${TARGET} PRIVATE
@@ -79,18 +81,18 @@ add_custom_target(run
 )
 
 # Compiler check
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(${TARGET} PRIVATE -Wall -Werror -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-but-set-parameter)
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		target_compile_options(${TARGET} PRIVATE -DENABLE_ASSERT -Wall -Werror -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-but-set-parameter)
 else()
     if(MSVC)
-    	target_compile_options(${TARGET} PRIVATE /W3)
+    	target_compile_options(${TARGET} PRIVATE /DENABLE_ASSERT /W3)
     endif()
 endif()
 
 if(WIN32)
     target_link_libraries(${TARGET} PRIVATE )
 elseif(LINUX)
-    target_link_libraries(${TARGET} PRIVATE m dl X11 ${SDL2_LIBRARIES})
+    target_link_libraries(${TARGET} PRIVATE m dl X11 ${SDL2_LIBRARIES} uuid)
 endif()
 
 
