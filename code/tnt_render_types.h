@@ -38,10 +38,12 @@ struct R_Mesh
 {
 	R_Vertex3D *vertices;
 	u64 vertex_count;
+	u64 *indices;
+	u64 indices_count;
 };
 
-typedef void *R_Window;
-typedef void *R_Context;
+typedef void R_Window;
+typedef void R_Context;
 typedef u32 R_Shader;
 
 #endif // TNT_RENDER_TYPES_H

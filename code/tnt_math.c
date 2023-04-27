@@ -223,12 +223,12 @@ Vec3i v3i_div(Vec3i a, Vec3i b)
 
 Mat4 m4(f32 x, f32 y, f32 z, f32 w)
 {
-	Mat4 m = {0};
-	m.x = x;
-	m.y = y;
-	m.z = z;
-	m.w = w;
-	return m;
+	Mat4 result = mat4_identity();
+	result.x = x;
+	result.y = y;
+	result.z = z;
+	result.w = w;
+	return result;
 }
 
 Mat4 mat4_identity()
@@ -237,42 +237,57 @@ Mat4 mat4_identity()
 	result.m[0][0] = 1.0f;
  	result.m[1][1] = 1.0f;
  	result.m[2][2] = 1.0f;
+	result.m[3][0] = 0.0f;
+	result.m[3][1] = 0.0f;
  	result.m[3][3] = 1.0f;
 	return result;
 }
 
-Mat4 mat4_mul(Mat4 *a, Mat4 *b)
+Mat4 mat4_mul_mat4(Mat4 a, Mat4 b)
 {
 	Mat4 result = {0};
-	for (u32 i = 0; i < 4; ++i)
+  for (u32 i = 0; i < 4; i += 1) 
 	{
-    for (u32 j = 0; j < 4; ++j) 
+  	for (u32 j = 0; j < 4; j += 1) 
 		{
-    	result.m[i][j] = 0;
-    	for (u32 k = 0; k < 4; ++k)
+    	for (u32 k = 0; k < 4; k += 1) 
 			{
-    		result.m[i][j] += a->m[i][k] * b->m[k][j];
-    	}
-		}
+      	result.m[i][j] += a.m[i][k] * b.m[k][j];
+      }
+    }
 	}
+  return result;
+}
+
+Vec4 mat4_mul_vec4(Mat4 m, Vec4 v)
+{
+	Vec4 result = {0};
+  for (u32 i = 0; i < 4; i += 1) 
+	{
+  	for (u32 j = 0; j < 4; j += 1) 
+		{
+    	result.v[i] += m.m[i][j] * v.v[j];
+    }
+  }
 	return result;
 }
 
-Mat4 mat4_translate(Mat4 mat, Vec3 pos)
+Mat4 mat4_translate(Vec3 pos)
 {
-	mat.m[0][0] = 1.0f;
-	mat.m[1][1] = 1.0f;
-	mat.m[2][2] = 1.0f;
-	mat.m[3][0] = pos.x;
-	mat.m[3][1] = pos.y;
-	mat.m[3][2] = pos.z;
-	mat.m[3][3] = 1.0f;
-	return mat;
+	Mat4 result = mat4_identity();
+	result.m[0][0] = 1.0f;
+	result.m[1][1] = 1.0f;
+	result.m[2][2] = 1.0f;
+	result.m[3][0] = pos.x;
+	result.m[3][1] = pos.y;
+	result.m[3][2] = pos.z;
+	result.m[3][3] = 1.0f;
+	return result;
 }
 
 Mat4 mat4_scale(Vec3 scale)
 {
-	Mat4 result = {0};
+	Mat4 result = mat4_identity();
 	result.m[0][0] = scale.x;
  	result.m[1][1] = scale.y;
  	result.m[2][2] = scale.z;
@@ -280,29 +295,228 @@ Mat4 mat4_scale(Vec3 scale)
 	return result;
 }
 
+Mat4 mat4_rotate(f32 angle, Vec3 axis)
+{
+	f32 c = cos(angle);
+  f32 s = sin(angle);
+  f32 x = axis.x;
+  f32 y = axis.y;
+  f32 z = axis.z;
+
+  Mat4 result = mat4_identity();
+  result.m[0][0] = x * x * (1 - c) + c;
+  result.m[0][1] = x * y * (1 - c) - z * s;
+  result.m[0][2] = x * z * (1 - c) + y * s;
+  result.m[0][3] = 0.0f;
+  result.m[1][0] = y * x * (1 - c) + z * s;
+  result.m[1][1] = y * y * (1 - c) + c;
+  result.m[1][2] = y * z * (1 - c) - x * s;
+  result.m[1][3] = 0.0f;
+  result.m[2][0] = z * x * (1 - c) - y * s;
+  result.m[2][1] = z * y * (1 - c) + x * s;
+  result.m[2][2] = z * z * (1 - c) + c;
+  result.m[2][3] = 0.0f;
+  result.m[3][0] = 0.0f;
+  result.m[3][1] = 0.0f;
+  result.m[3][2] = 0.0f;
+  result.m[3][3] = 1.0f;
+
+  return result;
+}
+
 Mat4 mat4_perspective(f32 fov, f32 aspect, f32 near, f32 far)
 {
-	f32 tan_half_fov = tanf(fov * 0.5f * (M_PI / 180.0f));
+	f32 scale = 1.0f / tanf(fov * 0.5f * (M_PI / 180.0f));
+	f32 frustum_length = far - near;
 
-	Mat4 result = {0};
-	result.m[0][0] = 1.0f / (aspect * tan_half_fov); // aspect * fov
-	result.m[1][1] = 1.0f / tan_half_fov;
-	result.m[2][2] = far / (far - near);
-	result.m[3][2] = (-far * near) / (far - near);
-	result.m[2][3] = 1;
+	Mat4 result = mat4_identity();
+	result.m[0][0] = scale * aspect;
+	result.m[1][1] = scale;
+	result.m[2][2] = -(far + near) / frustum_length;
+	result.m[2][3] = -1;
+	result.m[3][2] = -(far * near) / frustum_length;
 	result.m[3][3] = 0;
 	return result;
 }
 
-Vec3 mat4_world_to_screen(Mat4 *mat, Vec3 point)
+Mat4 mat4_look_at(Vec3 eye, Vec3 center, Vec3 up)
+{
+	Vec3 f = v3(center.x - eye.x, center.y - eye.y, center.z - eye.z);
+  f32 f_magnitude = sqrtf(f.x * f.x + f.y * f.y + f.z * f.z);
+  f.x /= f_magnitude;
+  f.y /= f_magnitude;
+  f.z /= f_magnitude;
+
+  Vec3 s = v3(f.y * up.z - f.z * up.y, f.z * up.x - f.x * up.z, f.x * up.y - f.y * up.x);
+  f32 s_magnitude = sqrtf(s.x * s.x + s.y * s.y + s.z * s.z);
+  s.x /= s_magnitude;
+  s.y /= s_magnitude;
+  s.z /= s_magnitude;
+
+  Vec3 u = v3(s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z, s.x * f.y - s.y * f.x);
+
+  Mat4 result = mat4_identity();
+  result.m[0][0] = s.x;
+  result.m[1][0] = s.y;
+  result.m[2][0] = s.z;
+  result.m[0][1] = u.x;
+  result.m[1][1] = u.y;
+  result.m[2][1] = u.z;
+  result.m[0][2] = -f.x;
+  result.m[1][2] = -f.y;
+  result.m[2][2] = -f.z;
+  result.m[3][0] = -(s.x * eye.x + s.y * eye.y + s.z * eye.z);
+  result.m[3][1] = -(u.x * eye.x + u.y * eye.y + u.z * eye.z);
+  result.m[3][2] = (f.x * eye.x + f.y * eye.y + f.z * eye.z);
+  return result;
+}
+
+Mat4 mat4_inverse(Mat4 m)
+{
+	Mat4 result = mat4_identity();
+	f32 inv[16], det;
+
+  inv[0] = m.m[1][1] * m.m[2][2] * m.m[3][3] -
+          m.m[1][1] * m.m[2][3] * m.m[3][2] -
+          m.m[2][1] * m.m[1][2] * m.m[3][3] +
+          m.m[2][1] * m.m[1][3] * m.m[3][2] +
+          m.m[3][1] * m.m[1][2] * m.m[2][3] -
+          m.m[3][1] * m.m[1][3] * m.m[2][2];
+
+	inv[1] = -m.m[0][1] * m.m[2][2] * m.m[3][3] +
+          m.m[0][1] * m.m[2][3] * m.m[3][2] +
+          m.m[2][1] * m.m[0][2] * m.m[3][3] -
+          m.m[2][1] * m.m[0][3] * m.m[3][2] -
+          m.m[3][1] * m.m[0][2] * m.m[2][3] +
+          m.m[3][1] * m.m[0][3] * m.m[2][2];
+
+	inv[2] = m.m[0][2] * m.m[1][3] * m.m[3][0] -
+         m.m[0][3] * m.m[1][2] * m.m[3][0] -
+         m.m[0][2] * m.m[1][0] * m.m[3][3] +
+         m.m[0][0] * m.m[1][2] * m.m[3][3] +
+         m.m[0][3] * m.m[1][0] * m.m[3][2] -
+         m.m[0][0] * m.m[1][3] * m.m[3][2];
+
+	inv[3] = -m.m[0][2] * m.m[1][1] * m.m[3][0] +
+          m.m[0][1] * m.m[1][2] * m.m[3][0] +
+          m.m[0][2] * m.m[1][0] * m.m[3][1] -
+          m.m[0][0] * m.m[1][2] * m.m[3][1] -
+          m.m[0][1] * m.m[1][0] * m.m[3][2] +
+          m.m[0][0] * m.m[1][1] * m.m[3][2];
+
+	inv[4] = -m.m[0][1] * m.m[2][2] * m.m[3][3] +
+         	m.m[0][1] * m.m[2][3] * m.m[3][2] +
+          m.m[2][1] * m.m[0][2] * m.m[3][3] -
+          m.m[2][1] * m.m[0][3] * m.m[3][2] -
+         	m.m[3][1] * m.m[0][2] * m.m[2][3] +
+         	m.m[3][1] * m.m[0][3] * m.m[2][2];
+
+	inv[5] = m.m[0][0] * m.m[2][2] * m.m[3][3] -
+         	m.m[0][0] * m.m[2][3] * m.m[3][2] -
+         	m.m[2][0] * m.m[0][2] * m.m[3][3] +
+         	m.m[2][0] * m.m[0][3] * m.m[3][2] +
+         	m.m[3][0] * m.m[0][2] * m.m[2][3] -
+					m.m[3][0] * m.m[0][3] * m.m[2][2];
+
+	inv[6] = -m.m[0][2] * m.m[2][3] * m.m[3][0] +
+          m.m[0][3] * m.m[2][2] * m.m[3][0] +
+          m.m[0][2] * m.m[2][0] * m.m[3][3] -
+          m.m[0][0] * m.m[2][2] * m.m[3][3] -
+          m.m[0][3] * m.m[2][0] * m.m[3][2] +
+          m.m[0][0] * m.m[2][3] * m.m[3][2];
+
+	inv[7] = m.m[0][2] * m.m[2][1] * m.m[3][0] -
+         m.m[0][1] * m.m[2][2] * m.m[3][0] -
+         m.m[0][2] * m.m[2][0] * m.m[3][1] +
+         m.m[0][0] * m.m[2][2] * m.m[3][1] +
+         m.m[0][1] * m.m[2][0] * m.m[3][2] -
+         m.m[0][0] * m.m[2][1] * m.m[3][2];
+
+	inv[8] = m.m[0][1] * m.m[1][2] * m.m[3][3] -
+          m.m[0][1] * m.m[1][3] * m.m[3][2] -
+          m.m[1][1] * m.m[0][2] * m.m[3][3] +
+          m.m[1][1] * m.m[0][3] * m.m[3][2] +
+          m.m[3][1] * m.m[0][2] * m.m[1][3] -
+          m.m[3][1] * m.m[0][3] * m.m[1][2];
+
+	inv[9] = -m.m[0][0] * m.m[1][2] * m.m[3][3] +
+          m.m[0][0] * m.m[1][3] * m.m[3][2] +
+          m.m[1][0] * m.m[0][2] * m.m[3][3] -
+          m.m[1][0] * m.m[0][3] * m.m[3][2] -
+          m.m[3][0] * m.m[0][2] * m.m[1][3] +
+          m.m[3][0] * m.m[0][3] * m.m[1][2];
+
+	inv[10] = m.m[0][2] * m.m[1][3] * m.m[2][0] -
+          m.m[0][3] * m.m[1][2] * m.m[2][0] -
+          m.m[0][2] * m.m[1][0] * m.m[2][3] +
+          m.m[0][0] * m.m[1][2] * m.m[2][3] +
+          m.m[0][3] * m.m[1][0] * m.m[2][2] -
+          m.m[0][0] * m.m[1][3] * m.m[2][2];
+
+	inv[11] = -m.m[0][2] * m.m[1][1] * m.m[2][0] +
+           m.m[0][1] * m.m[1][2] * m.m[2][0] +
+           m.m[0][2] * m.m[1][0] * m.m[2][1] -
+           m.m[0][0] * m.m[1][2] * m.m[2][1] -
+           m.m[0][1] * m.m[1][0] * m.m[2][2] +
+           m.m[0][0] * m.m[1][1] * m.m[2][2];
+
+	inv[12] = -m.m[0][1] * m.m[1][2] * m.m[2][3] +
+					m.m[0][1] * m.m[1][3] * m.m[2][2] +
+         	m.m[1][1] * m.m[0][2] * m.m[2][3] -
+          m.m[1][1] * m.m[0][3] * m.m[2][2] -
+         	m.m[2][1] * m.m[0][2] * m.m[1][3] +
+          m.m[2][1] * m.m[0][3] * m.m[1][2];
+
+	inv[13] = m.m[0][0] * m.m[1][2] * m.m[2][3] -
+          m.m[0][0] * m.m[1][3] * m.m[2][2] -
+          m.m[1][0] * m.m[0][2] * m.m[2][3] +
+          m.m[1][0] * m.m[0][3] * m.m[2][2] +
+          m.m[2][0] * m.m[0][2] * m.m[1][3] -
+          m.m[2][0] * m.m[0][3] * m.m[1][2];
+
+	inv[14] = -m.m[0][2] * m.m[1][3] * m.m[2][1] +
+           m.m[0][3] * m.m[1][2] * m.m[2][1] +
+           m.m[0][2] * m.m[1][1] * m.m[2][3] -
+           m.m[0][1] * m.m[1][2] * m.m[2][3] -
+           m.m[0][3] * m.m[1][1] * m.m[2][2] +
+           m.m[0][1] * m.m[1][3] * m.m[2][2];
+
+	inv[15] = m.m[0][2] * m.m[1][1] * m.m[2][0] -
+          m.m[0][1] * m.m[1][2] * m.m[2][0] -
+          m.m[0][2] * m.m[1][0] * m.m[2][1] +
+          m.m[0][0] * m.m[1][2] * m.m[2][1] +
+          m.m[0][1] * m.m[1][0] * m.m[2][2] -
+          m.m[0][0] * m.m[1][1] * m.m[2][2];
+
+	det = m.m[0][0] * inv[0] + m.m[0][1] * inv[4] + m.m[0][2] * inv[8] + m.m[0][3] * inv[12];
+
+	if (det == 0)
+	{
+    return result;
+	}
+
+	det = 1.0f / det;
+
+  for (u32 i = 0; i < 4; i += 1) 
+	{
+  	for (u32 j = 0; j < 4; j += 1) 
+		{
+    	result.m[i][j] = inv[i * 4 + j] * det;
+    }
+	}
+
+	return result;
+}
+
+Vec3 mat4_world_to_screen(Mat4 m, Vec3 point)
 {
 	Vec3 result = {0};
 
 	Vec4 clip = {0};
-	clip.x = point.x * mat->m[0][0] + point.y * mat->m[1][0] + point.z * mat->m[2][0] + mat->m[3][0]; 
-  clip.y = point.x * mat->m[0][1] + point.y * mat->m[1][1] + point.z * mat->m[2][1] + mat->m[3][1]; 
-  clip.z = point.x * mat->m[0][2] + point.y * mat->m[1][2] + point.z * mat->m[2][2] + mat->m[3][2]; 
-  clip.w = point.x * mat->m[0][3] + point.y * mat->m[1][3] + point.z * mat->m[2][3] + mat->m[3][3]; 
+	clip.x = point.x * m.m[0][0] + point.y * m.m[1][0] + point.z * m.m[2][0] + m.m[3][0]; 
+  clip.y = point.x * m.m[0][1] + point.y * m.m[1][1] + point.z * m.m[2][1] + m.m[3][1]; 
+  clip.z = point.x * m.m[0][2] + point.y * m.m[1][2] + point.z * m.m[2][2] + m.m[3][2]; 
+  clip.w = point.x * m.m[0][3] + point.y * m.m[1][3] + point.z * m.m[2][3] + m.m[3][3]; 
   if (clip.w < 1.0f) 
 	{
 		return result;
@@ -320,13 +534,34 @@ Vec3 mat4_world_to_screen(Mat4 *mat, Vec3 point)
 	return result;
 }
 
-void mat4_print(Mat4 *mat)
+Vec3 mat4_screen_to_world(Vec2 screen_coord, Mat4 projection_matrix, Mat4 view_matrix, i32 screen_width, i32 screen_height)
+{
+  // Преобразование в нормализованные координаты устройства
+  Vec2 ndc = V2_ZERO;
+  ndc.x = (2.0f * screen_coord.x) / screen_width - 1.0f;
+  ndc.y = 1.0f - (2.0f * screen_coord.y) / screen_height;
+
+  // Обратная проекция в пространство камеры
+  Vec4 clip_coord = v4(ndc.x, ndc.y, -1.0f, 1.0f);
+  Mat4 inv_projection = mat4_inverse(projection_matrix);
+  Vec4 eye_coord = mat4_mul_vec4(inv_projection, clip_coord);
+  eye_coord.z = -1.0f;
+  eye_coord.w = 0.0f;
+
+  // Преобразование в мировое пространство
+  Mat4 inv_view = mat4_inverse(view_matrix);
+  Vec4 world_coord = mat4_mul_vec4(inv_view, eye_coord);
+
+  return v3(world_coord.x, world_coord.y, world_coord.z);
+}
+
+void mat4_print(Mat4 m)
 {
 	for (u32 i = 0; i < 4; i++)
   {
   	for (u32 j = 0; j < 4; j++)
     {
-    	printf("%f ", mat->m[i][j]);
+    	printf("%f ", m.m[i][j]);
     }
     printf("\n");
   }

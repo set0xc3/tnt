@@ -1,4 +1,5 @@
 #include "tnt_render.h"
+#include "tnt_camera.h"
 #include "tnt_os.h"
 #include "tnt_types.h"
 #include "tnt_logger.h"
@@ -7,7 +8,7 @@
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
 
-b8 render_load(TNT_Render *ctx, R_Window window_handle, String8 path)
+b8 render_load(TNT_Render *ctx, R_Window *window_handle, String8 path)
 {
 	ctx->handle = os_library_load(path);
 	if (!ctx->handle)
@@ -62,17 +63,32 @@ void render_init(TNT_Render *ctx)
 	ctx->debug_vao = ctx->api->vertex_array_create(ctx->debug_vbo, debug_attribs, ArrayCount(debug_attribs));
 }
 
-void draw_line(TNT_Render *ctx, Vec2 v1, Vec2 v2, Vec4 color)
+void render_begin(OS_Window *window, TNT_Render *render, Camera *camera, R_Shader shader)
+{
+	Mat4 view_matrix = camera_get_view_matrix(camera);
+	Mat4 projection_matrix = camera_get_projection_matrix(camera);
+  render->api->begin(window->handle, window->render, v4(0.0f, 0.0f, window->width, window->height));
+	render->api->shader_bind(shader);
+	render->api->uniform_mat4_set(shader, str8("projection"), *projection_matrix.m);
+	render->api->uniform_mat4_set(shader, str8("view"), *view_matrix.m);
+}
+
+void render_end(TNT_Render *render, R_Window *window_handle)
+{
+  render->api->end(window_handle);
+}
+
+void draw_line(TNT_Render *render, Vec2 v1, Vec2 v2, Vec4 color)
 {
 	R_Vertex2D vertices[] = {
 		{v1, color},
 		{v2, color},
 	};
-	ctx->api->shader_bind(ctx->debug_shader);
-	ctx->api->vertex_buffer_bind(ctx->debug_vbo);
-	ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
-	ctx->api->vertex_array_bind(ctx->debug_vao);
-	ctx->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
+	render->api->shader_bind(render->debug_shader);
+	render->api->vertex_buffer_bind(render->debug_vbo);
+	render->api->vertex_buffer_update(vertices, sizeof(vertices));
+	render->api->vertex_array_bind(render->debug_vao);
+	render->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
 void draw_rectangle(TNT_Render *ctx, Vec2 position, Vec2 size, Vec4 color)
@@ -105,40 +121,40 @@ void draw_cube(TNT_Render *ctx, Vec3 position, Vec2 size, Vec4 color)
 	f32 w = size.x;
 	f32 h = size.y;
 	R_Vertex3D vertices[] = {
-		{v3(-0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, 0.5f, -0.5f), color},
-		{v3(0.5f, 0.5f, -0.5f), color},
-		{v3(-0.5f, 0.5f, -0.5f), color},
-		{v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, -1.0f, -1.0f), color},
+		{v3(1.0f, 1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, 1.0f, -1.0f), color},
+		{v3(-1.0f, 1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f, -1.0f, -1.0f), color},
 
-		{v3(-0.5f, -0.5f,  0.5f), color},
-		{v3(0.5f, -0.5f,  0.5f), color},
-		{v3(0.5f,  0.5f,  0.5f), color},
-		{v3(0.5f,  0.5f,  0.5f), color},
-		{v3(-0.5f,  0.5f,  0.5f), color},
-		{v3(-0.5f, -0.5f,  0.5f), color},
+		{v3(-1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, -1.0f,  1.0f), color},
+		{v3(1.0f,  1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f,  1.0f,  1.0f), color},
+		{v3(-1.0f,  1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f, -1.0f,  1.0f), color},
 
-		{v3(-0.5f,  0.5f,  0.5f), color},
-		{v3(-0.5f,  0.5f, -0.5f), color},
-		{v3(-0.5f, -0.5f, -0.5f), color},
-		{v3(-0.5f, -0.5f, -0.5f), color},
-		{v3(-0.5f, -0.5f,  0.5f), color},
-		{v3(-0.5f,  0.5f,  0.5f), color},
+		{v3(-1.0f,  1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f,  1.0f, -1.0f), color},
+		{v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f, -1.0f, -1.0f), color},
+		{v3(-1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f,  1.0f,  1.0f), color},
 
-		{v3(0.5f,  0.5f,  0.5f), color},
-		{v3(0.5f,  0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f,  0.5f), color},
-		{v3(0.5f,  0.5f,  0.5f), color},
+		{v3(1.0f,  1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f,  1.0f, -1.0f), color},
+		{v3(1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, -1.0f, -1.0f), color},
+		{v3(1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f,  1.0f,  1.0f), color},
 		
-		{v3(-0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f, -0.5f), color},
-		{v3(0.5f, -0.5f,  0.5f), color},
-		{v3(0.5f, -0.5f,  0.5f), color},
-		{v3(-0.5f, -0.5f,  0.5f), color},
-		// {v3(-0.5f, -0.5f, -0.5f), color},
+		{v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, -1.0f, -1.0f), color},
+		{v3(1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(1.0f, -1.0f,  1.0f), color},
+		{v3(-1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
+		{v3(-1.0f, -1.0f, -1.0f), color},
 	};
 	ctx->api->shader_bind(ctx->default_shader);
 	ctx->api->vertex_buffer_bind(ctx->default_vbo);

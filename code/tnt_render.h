@@ -5,6 +5,8 @@
 #include "tnt_string.h"
 #include "tnt_math.h"
 #include "tnt_render_types.h"
+#include "tnt_camera.h"
+#include "tnt_os.h"
 
 typedef struct TNT_RenderAPI TNT_RenderAPI;
 struct TNT_RenderAPI
@@ -46,10 +48,12 @@ struct TNT_Render
 	R_Shader default_shader;
 };
 
-b8 render_load(TNT_Render *ctx, R_Window window_handle, String8 path);
+b8 	 render_load(TNT_Render *ctx, R_Window *window_handle, String8 path);
 void render_unload(TNT_Render *ctx);
 
 void render_init(TNT_Render *ctx);
+void render_begin(OS_Window *window, TNT_Render *render, Camera *camera, R_Shader shader);
+void render_end(TNT_Render *render, R_Window *window_handle);
 void draw_line(TNT_Render *ctx, Vec2 v1, Vec2 v2, Vec4 color);
 void draw_rectangle(TNT_Render *ctx, Vec2 position, Vec2 size, Vec4 color);
 void draw_cube(TNT_Render *ctx, Vec3 position, Vec2 size, Vec4 color);

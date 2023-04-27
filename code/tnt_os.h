@@ -3,7 +3,6 @@
 
 #include "tnt_types.h"
 #include "tnt_string.h"
-#include "tnt_math.h"
 
 enum OS_EventType
 {
