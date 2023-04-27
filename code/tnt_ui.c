@@ -19,7 +19,7 @@ void ui_begin_layout(UI_LayoutKind kind)
 
 b32 ui_button(UI_State *ctx, TNT_Render *render, Vec4 color, Vec2 size, UI_Id id)
 {
-	ASSERT(ctx->layouts_count == 0 || ctx->layouts_count+1 > UI_LAYOUTS_CAPACITY);
+	ASSERT(ctx->layouts_count == 0);
 
 	UI_Layout *layout = ui_layout_top(ctx);
 	const Vec2 pos = ui_layout_available_pos(layout);
@@ -60,7 +60,7 @@ b32 ui_button(UI_State *ctx, TNT_Render *render, Vec4 color, Vec2 size, UI_Id id
 		}
 	}
 
-	draw_rectangle(render, v2(rect1.x, rect1.y), v2(rect1.z, rect1.w), color);
+	draw_rect(render, v2(rect1.x, rect1.y), v2(rect1.z, rect1.w), color);
 
 	ui_layout_push_widget(layout, size);
 
@@ -102,7 +102,7 @@ Vec2 ui_layout_available_pos(UI_Layout *layout)
 
 void ui_layout_push(UI_State *ctx, UI_Layout layout)
 {
-	ASSERT(ctx->layouts_count+1 > UI_LAYOUTS_CAPACITY);
+	ASSERT(ctx->layouts_count + 1 > UI_LAYOUTS_CAPACITY);
 
 	ctx->layouts[ctx->layouts_count] = layout;
 	ctx->layouts_count += 1;
@@ -125,19 +125,19 @@ void ui_layout_push_widget(UI_Layout *layout, Vec2 size)
 
 void ui_layout_pop(UI_State *ctx)
 {
-	ASSERT(ctx->layouts_count == 0 || ctx->layouts_count+1 > UI_LAYOUTS_CAPACITY);
+	ASSERT(ctx->layouts_count == 0);
 
-	UI_Layout *layout = ctx->layouts - ctx->layouts_count;
+	UI_Layout *layout = ctx->layouts - ctx->layouts_count - 1;
 	memset(layout, 0, sizeof(UI_Layout));
 	ctx->layouts_count -= 1;
 }
 
 UI_Layout *ui_layout_top(UI_State *ctx)
 {
-	ASSERT(ctx->layouts_count == 0 || ctx->layouts_count+1 > UI_LAYOUTS_CAPACITY);
+	ASSERT(ctx->layouts_count == 0);
 
 	UI_Layout *result = 0;
 
-	result = ctx->layouts - ctx->layouts_count-1;
+	result = ctx->layouts - ctx->layouts_count - 1;
 	return result;
 }

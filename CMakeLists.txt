@@ -40,8 +40,8 @@ message("CMAKE_ARCHIVE_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 find_package(SDL2 REQUIRED)
 set(FILES
-	code/tnt_application.h
-	code/tnt_application.c
+	code/tnt_app.h
+	code/tnt_app.c
 	code/tnt_types.h
 	code/tnt_linked_list.h
 	code/tnt_linked_list.c
@@ -65,6 +65,8 @@ set(FILES
 	code/tnt_thread.c
 	code/tnt_entity.h
 	code/tnt_entity.c
+	code/tnt_scene.h
+	code/tnt_scene.c
 )
 add_executable(${TARGET} ${FILES})
 target_include_directories(${TARGET} PRIVATE

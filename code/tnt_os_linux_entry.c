@@ -1,9 +1,9 @@
-#include "tnt_application.h"
+#include "tnt_app.h"
 
 int main(int argc, char **argv)
 {
-    application_init();
-    application_run();
+    app_init();
+    app_run();
 
     return 0;
 }

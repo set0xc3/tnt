@@ -8,39 +8,39 @@
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
 
-b8 render_load(TNT_Render *ctx, R_Window *window_handle, String8 path)
+b8 render_load(TNT_Render *render, R_Window *window_handle, String8 path)
 {
-	ctx->handle = os_library_load(path);
-	if (!ctx->handle)
+	render->handle = os_library_load(path);
+	if (!render->handle)
 	{
 		LOG_ERROR("[Render]: Failed load library");
 		ASSERT(true);
 		return false;
 	}
-	ctx->api = os_library_load_symbol(ctx->handle, str8("api"));
-	if (!ctx->api)
+	render->api = os_library_load_symbol(render->handle, str8("api"));
+	if (!render->api)
 	{
 		LOG_ERROR("[Render]: Failed load symbol library");
 		ASSERT(true);
 		return false;
 	}
-	ctx->api->init(window_handle);
+	render->api->init(window_handle);
 	return true;
 }
 
-void render_unload(TNT_Render *ctx)
+void render_unload(TNT_Render *render)
 {
-	os_library_unload(ctx->handle);
+	os_library_unload(render->handle);
 }
 
-void render_init(TNT_Render *ctx)
+void render_init(TNT_Render *render)
 {
-	ctx->debug_shader = ctx->api->shader_load(
+	render->debug_shader = render->api->shader_load(
 		str8("./assets/shaders/debug_vs.glsl"),
 		str8("./assets/shaders/debug_fs.glsl"),
 		str8(""));
 
-	ctx->default_shader = ctx->api->shader_load(
+	render->default_shader = render->api->shader_load(
 		str8("./assets/shaders/default_vs.glsl"),
 		str8("./assets/shaders/default_fs.glsl"),
 		str8(""));
@@ -56,11 +56,11 @@ void render_init(TNT_Render *ctx)
 		{4, 0x1406, sizeof(R_Vertex3D), GetMember(R_Vertex3D, color)},
 	};
 
-	ctx->default_vbo = ctx->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
-	ctx->default_vao = ctx->api->vertex_array_create(ctx->default_vbo, default_attribs, ArrayCount(default_attribs));
+	render->default_vbo = render->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
+	render->default_vao = render->api->vertex_array_create(render->default_vbo, default_attribs, ArrayCount(default_attribs));
 
-	ctx->debug_vbo = ctx->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
-	ctx->debug_vao = ctx->api->vertex_array_create(ctx->debug_vbo, debug_attribs, ArrayCount(debug_attribs));
+	render->debug_vbo = render->api->vertex_buffer_create(0,  MAX_QUAD_COUNT);
+	render->debug_vao = render->api->vertex_array_create(render->debug_vbo, debug_attribs, ArrayCount(debug_attribs));
 }
 
 void render_begin(OS_Window *window, TNT_Render *render, Camera *camera, R_Shader shader)
@@ -68,9 +68,17 @@ void render_begin(OS_Window *window, TNT_Render *render, Camera *camera, R_Shade
 	Mat4 view_matrix = camera_get_view_matrix(camera);
 	Mat4 projection_matrix = camera_get_projection_matrix(camera);
   render->api->begin(window->handle, window->render, v4(0.0f, 0.0f, window->width, window->height));
-	render->api->shader_bind(shader);
 	render->api->uniform_mat4_set(shader, str8("projection"), *projection_matrix.m);
 	render->api->uniform_mat4_set(shader, str8("view"), *view_matrix.m);
+}
+
+void render_flush(TNT_Render *render, R_Mesh *mesh)
+{
+	render->api->shader_bind(render->default_shader);
+	render->api->vertex_buffer_bind(render->default_vbo);
+	render->api->vertex_buffer_update(mesh->vertices, sizeof(R_Vertex3D) * mesh->vertices_count);
+	render->api->vertex_array_bind(render->default_vao);
+	render->api->flush(DRAWING_MODE_TRIANGLES, mesh->vertices_count);
 }
 
 void render_end(TNT_Render *render, R_Window *window_handle)
@@ -91,7 +99,7 @@ void draw_line(TNT_Render *render, Vec2 v1, Vec2 v2, Vec4 color)
 	render->api->flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
-void draw_rectangle(TNT_Render *ctx, Vec2 position, Vec2 size, Vec4 color)
+void draw_rect(TNT_Render *render, Vec2 position, Vec2 size, Vec4 color)
 {
 	f32 x = position.x;
 	f32 y = position.y;
@@ -106,14 +114,14 @@ void draw_rectangle(TNT_Render *ctx, Vec2 position, Vec2 size, Vec4 color)
 		{v2(x, y + h), color},
 		{v2(x, y), color},
 	};
-	ctx->api->shader_bind(ctx->debug_shader);
-	ctx->api->vertex_buffer_bind(ctx->debug_vbo);
-	ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
-	ctx->api->vertex_array_bind(ctx->debug_vao);
-	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
+	render->api->shader_bind(render->debug_shader);
+	render->api->vertex_buffer_bind(render->debug_vbo);
+	render->api->vertex_buffer_update(vertices, sizeof(vertices));
+	render->api->vertex_array_bind(render->debug_vao);
+	render->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }
 
-void draw_cube(TNT_Render *ctx, Vec3 position, Vec2 size, Vec4 color)
+void draw_cube(TNT_Render *render, Vec3 position, Vec2 size, Vec4 color)
 {
 	f32 x = position.x;
 	f32 y = position.y;
@@ -156,9 +164,9 @@ void draw_cube(TNT_Render *ctx, Vec3 position, Vec2 size, Vec4 color)
 		{v3(-1.0f, -1.0f,  1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
 		{v3(-1.0f, -1.0f, -1.0f), color},
 	};
-	ctx->api->shader_bind(ctx->default_shader);
-	ctx->api->vertex_buffer_bind(ctx->default_vbo);
-	ctx->api->vertex_buffer_update(vertices, sizeof(vertices));
-	ctx->api->vertex_array_bind(ctx->default_vao);
-	ctx->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
+	render->api->shader_bind(render->default_shader);
+	render->api->vertex_buffer_bind(render->default_vbo);
+	render->api->vertex_buffer_update(vertices, sizeof(vertices));
+	render->api->vertex_array_bind(render->default_vao);
+	render->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }

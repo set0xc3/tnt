@@ -37,7 +37,7 @@ typedef struct R_Mesh R_Mesh;
 struct R_Mesh
 {
 	R_Vertex3D *vertices;
-	u64 vertex_count;
+	u64 vertices_count;
 	u64 *indices;
 	u64 indices_count;
 };

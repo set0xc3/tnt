@@ -49,7 +49,7 @@ u8 *arena_push_zero(TNT_MemoryArena *arena, u64 size)
 
 u8 *arena_pop(TNT_MemoryArena *arena, u64 size)
 {
-  if (arena->offset == 0 || arena->offset > arena->size)
+  if (arena->offset == 0)
   {
     LOG_FATAL("Handle out-of-memory");
     ASSERT(true);
