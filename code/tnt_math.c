@@ -136,6 +136,33 @@ Vec4 v4_div(Vec4 a, Vec4 b)
 	return v;
 }
 
+Vec2 v2_normalize(Vec2 v)
+{
+	f32 magnitude = sqrt(v.x * v.x + v.y * v.y);
+	v.x /= magnitude;
+  v.y /= magnitude;
+	return v;
+}
+
+Vec3 v3_normalize(Vec3 v)
+{
+	f32 magnitude = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+	v.x /= magnitude;
+  v.y /= magnitude;
+  v.z /= magnitude;
+	return v;
+}
+
+Vec4 v4_normalize(Vec4 v)
+{
+	f32 magnitude = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	v.x /= magnitude;
+  v.y /= magnitude;
+  v.z /= magnitude;
+  v.w /= magnitude;
+	return v;
+}
+
 Vec2i v2i(i32 x, i32 y)
 {
 	Vec2i v = {0};
@@ -326,7 +353,7 @@ Mat4 mat4_rotate(f32 angle, Vec3 axis)
 
 Mat4 mat4_perspective(f32 fov, f32 aspect, f32 near, f32 far)
 {
-	f32 scale = 1.0f / tanf(fov * 0.5f * (M_PI / 180.0f));
+	f32 scale = 1.0f / tan(fov * 0.5f * (M_PI / 180.0f));
 	f32 frustum_length = far - near;
 
 	Mat4 result = mat4_identity();
@@ -342,16 +369,10 @@ Mat4 mat4_perspective(f32 fov, f32 aspect, f32 near, f32 far)
 Mat4 mat4_look_at(Vec3 eye, Vec3 center, Vec3 up)
 {
 	Vec3 f = v3(center.x - eye.x, center.y - eye.y, center.z - eye.z);
-  f32 f_magnitude = sqrtf(f.x * f.x + f.y * f.y + f.z * f.z);
-  f.x /= f_magnitude;
-  f.y /= f_magnitude;
-  f.z /= f_magnitude;
+	f = v3_normalize(f);
 
   Vec3 s = v3(f.y * up.z - f.z * up.y, f.z * up.x - f.x * up.z, f.x * up.y - f.y * up.x);
-  f32 s_magnitude = sqrtf(s.x * s.x + s.y * s.y + s.z * s.z);
-  s.x /= s_magnitude;
-  s.y /= s_magnitude;
-  s.z /= s_magnitude;
+	s = v3_normalize(s);
 
   Vec3 u = v3(s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z, s.x * f.y - s.y * f.x);
 
@@ -537,7 +558,7 @@ Vec3 mat4_world_to_screen(Mat4 m, Vec3 point)
 Vec3 mat4_screen_to_world(Vec2 screen_coord, Mat4 projection_matrix, Mat4 view_matrix, i32 screen_width, i32 screen_height)
 {
   // Преобразование в нормализованные координаты устройства
-  Vec2 ndc = V2_ZERO;
+  Vec2 ndc = {0};
   ndc.x = (2.0f * screen_coord.x) / screen_width - 1.0f;
   ndc.y = 1.0f - (2.0f * screen_coord.y) / screen_height;
 

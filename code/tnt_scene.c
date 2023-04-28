@@ -1,5 +1,11 @@
 #include "tnt_scene.h"
 #include "tnt_render_types.h"
+#include "tnt_logger.h"
+
+void scene_on_resize(Scene *scene, Vec4 viewport)
+{
+	camera_on_resize(scene->camera, viewport);
+}
 
 void scene_init(Scene *scene, TNT_MemoryArena *arena)
 {
@@ -47,42 +53,32 @@ void scene_init(Scene *scene, TNT_MemoryArena *arena)
 		{v3(-1.0f, -1.0f, -1.0f), color},
 	};
 
-	Entity *ent = scene_push_entity(scene, V3_ZERO, V3_ONE);
+	Entity *ent = scene_push_entity(scene, v3(0.0f, 0.0f, 0.0f), V3_ONE);
 	ent->mesh = push_struct_zero(arena, R_Mesh);
 	ent->mesh->vertices = push_array_zero(arena, R_Vertex3D, ArrayCount(cube_vertices));
 	memcpy(ent->mesh->vertices, cube_vertices, sizeof(cube_vertices));
 	ent->mesh->vertices_count = ArrayCount(cube_vertices);
+
+	ent = scene_push_entity(scene, v3(0.0f, 2.0f, 0.0f), V3_ONE);
+	ent->mesh = push_struct_zero(arena, R_Mesh);
+	ent->mesh->vertices = push_array_zero(arena, R_Vertex3D, ArrayCount(cube_vertices));
+	memcpy(ent->mesh->vertices, cube_vertices, sizeof(cube_vertices));
+	ent->mesh->vertices_count = ArrayCount(cube_vertices);
+
 }
 
 void scene_update(Scene *scene, OS_Input *input, f32 dt)
 {
-	camera_update(scene->camera);
-
-	if (os_input_key_pressed(input, OS_KEYCODE_W))
-	{
-		scene->camera->position.z += 1.0f * dt;
-	}
-	if (os_input_key_pressed(input, OS_KEYCODE_S))
-	{
-		scene->camera->position.z -= 1.0f * dt;
-	}
-	if (os_input_key_pressed(input, OS_KEYCODE_A))
-	{
-		scene->camera->position.x += 1.0f * dt;
-	}
-	if (os_input_key_pressed(input, OS_KEYCODE_D))
-	{
-		scene->camera->position.x -= 1.0f * dt;
-	}
+	camera_update(scene->camera, input, dt);
 }
 
-Entity *scene_push_entity(Scene *scene, Vec3 pos, Vec3 size)
+Entity *scene_push_entity(Scene *scene, Vec3 pos, Vec3 scale)
 {
 	ASSERT(scene->entities_count + 1 > ENTITIES_CAPASITY);
 
 	Entity *ent = scene->entities + scene->entities_count;
 	ent->position = pos;
-	ent->size = size;
+	ent->scale = scale;
 	scene->entities_count += 1;
 	return ent;
 }

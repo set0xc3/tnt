@@ -71,15 +71,16 @@ void app_run(void) {
 					 index += 1)
 			{
 				Entity *ent = scene_get_entity(ctx.scene, index);
-				Mat4 model = mat4_translate(ent->position);
-				ctx.render->api->uniform_mat4_set(ctx.render->default_shader, str8("model"), *model.m);
+				Mat4 model_matrix = mat4_identity();
+				model_matrix = mat4_mul_mat4(model_matrix, mat4_translate(ent->position)); 
+				ctx.render->api->uniform_mat4_set(ctx.render->default_shader, str8("model"), *model_matrix.m);
+
 				render_flush(ctx.render, ent->mesh);
 			}
 			render_end(ctx.render, ctx.window->handle);
 
       end_counter = begin_counter;
     }
-
     os_sleep((u32)ms_per_frame);
   }
 }
@@ -107,6 +108,9 @@ void app_process_events(void) {
       break;
     }
     os_input_on_event(ctx.input, event);
+		scene_on_resize(ctx.scene, 
+									v4(ctx.window->xpos, ctx.window->ypos, 
+									ctx.window->width, ctx.window->height));
     app_pop_event();
   }
 }

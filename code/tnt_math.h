@@ -141,6 +141,10 @@ Vec2 v2_div(Vec2 a, Vec2 b);
 Vec3 v3_div(Vec3 a, Vec3 b);
 Vec4 v4_div(Vec4 a, Vec4 b);
 
+Vec2 v2_normalize(Vec2 v);
+Vec3 v3_normalize(Vec3 v);
+Vec4 v4_normalize(Vec4 v);
+
 Vec2i v2i(i32 x, i32 y);
 Vec3i v3i(i32 x, i32 y, i32 z);
 
@@ -172,7 +176,7 @@ Mat4 mat4_inverse(Mat4 m);
 Vec3 mat4_world_to_screen(Mat4 m, Vec3 point); // вычисляет координаты точки в пространстве NDC
 Vec3 mat4_screen_to_world(Vec2 screen_coord, 
 													Mat4 projection_matrix, Mat4 view_matrix, 
-													i32 screen_width, i32 screen_height); // // преобразует координаты точки на экране в координаты точки в мировом пространстве
+													i32 screen_width, i32 screen_height); // преобразует координаты точки на экране в координаты точки в мировом пространстве
 
 
 void mat4_print(Mat4 m);

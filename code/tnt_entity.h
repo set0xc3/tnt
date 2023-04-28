@@ -11,7 +11,7 @@ struct Entity
 	u64 uuid;
 	Vec3 position;
 	Vec3 rotation;
-	Vec3 size;
+	Vec3 scale;
 	R_Mesh *mesh;
 };
 

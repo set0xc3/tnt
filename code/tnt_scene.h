@@ -19,10 +19,12 @@ struct Scene
 	u64 entities_count;
 };
 
+void scene_on_resize(Scene *scene, Vec4 viewport);
+
 void scene_init(Scene *scene, TNT_MemoryArena *arena);
 void scene_update(Scene *scene, OS_Input *input, f32 dt);
 
-Entity *scene_push_entity(Scene *scene, Vec3 pos, Vec3 size);
+Entity *scene_push_entity(Scene *scene, Vec3 pos, Vec3 scale);
 Entity *scene_pop_entity(Scene *scene);
 void 		scene_remove_entity(Scene *scene, Entity *entity);
 Entity *scene_get_entity(Scene *scene, u32 index);

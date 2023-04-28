@@ -65,8 +65,8 @@ void render_init(TNT_Render *render)
 
 void render_begin(OS_Window *window, TNT_Render *render, Camera *camera, R_Shader shader)
 {
-	Mat4 view_matrix = camera_get_view_matrix(camera);
 	Mat4 projection_matrix = camera_get_projection_matrix(camera);
+	Mat4 view_matrix = camera_get_view_matrix(camera);
   render->api->begin(window->handle, window->render, v4(0.0f, 0.0f, window->width, window->height));
 	render->api->uniform_mat4_set(shader, str8("projection"), *projection_matrix.m);
 	render->api->uniform_mat4_set(shader, str8("view"), *view_matrix.m);
@@ -114,10 +114,16 @@ void draw_rect(TNT_Render *render, Vec2 position, Vec2 size, Vec4 color)
 		{v2(x, y + h), color},
 		{v2(x, y), color},
 	};
+
 	render->api->shader_bind(render->debug_shader);
 	render->api->vertex_buffer_bind(render->debug_vbo);
 	render->api->vertex_buffer_update(vertices, sizeof(vertices));
 	render->api->vertex_array_bind(render->debug_vao);
+
+	Mat4 model_matrix = mat4_identity();
+	model_matrix = mat4_mul_mat4(model_matrix, mat4_translate(v3(position.x, position.y, 0.0f))); 
+	render->api->uniform_mat4_set(render->default_shader, str8("model"), *model_matrix.m);
+
 	render->api->flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
 }
 
