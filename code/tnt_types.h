@@ -43,7 +43,7 @@ typedef void *Function;
 #define ArrayCount(a) (sizeof((a)) / sizeof(*(a)))
 #define GetMember(st, m) ((u64) & (((st *)0)->m))
 
-#ifdef __gnu_linux__
+#ifdef __GNUC__
 #define PLATFORM_LINUX
 #elif __WIN32__
 #define PLATFORM_WINDOWS
@@ -79,7 +79,7 @@ typedef void *Function;
 #error missing platform detection
 #endif
 
-#ifdef __WIN32__
+#ifdef PLATFORM_WINDOWS 
 #define EXPORT __declspec(dllexport)
 #define IMPORT __declspec(dllimport)
 #else
