@@ -9,35 +9,32 @@
 
 typedef u64 UI_Id;
 
-typedef u32 UI_LayoutKind;
-enum
+typedef enum UI_LayoutKind
 {
 	UI_LayoutKind_Horizontal,
 	UI_LayoutKind_Vertical
-};
+} UI_LayoutKind;
 
-typedef struct UI_Layout UI_Layout;
-struct UI_Layout
+typedef struct UI_Layout
 {
 	UI_LayoutKind kind;
 	Vec2 pos;
 	Vec2 size;
 	f32 pad;
-};
+} UI_Layout;
 
-typedef struct UI_State UI_State;
-struct UI_State
+typedef struct UI_State
 {
 	Vec2 mouse_pos;
 	b32 mouse_button;
 	UI_Id active_id;
 	UI_Layout layouts[UI_LAYOUTS_CAPACITY];
 	u64 layouts_count;
-};
+} UI_State;
 
 void 	ui_begin(UI_State *ctx, Vec2 pos, f32 pad);
 void 	ui_begin_layout(UI_LayoutKind kind);
-b32 	ui_button(UI_State *ctx, TNT_Render *render, Vec4 color, Vec2 size, UI_Id id);
+b32 	ui_button(UI_State *ctx, Render_State *render, Vec4 color, Vec2 size, UI_Id id);
 void 	ui_end_layout();
 void 	ui_end(UI_State *ctx);
 

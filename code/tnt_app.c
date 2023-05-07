@@ -1,41 +1,32 @@
 #include "tnt_app.h"
-#include "tnt_camera.h"
 #include "tnt_entity.h"
-#include "tnt_logger.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
-#include "tnt_render_types.h"
 #include "tnt_scene.h"
-#include "tnt_string.h"
 #include "tnt_types.h"
-#include "tnt_math.h"
 
 #include <math.h>
 
-global_variable AppState ctx;
+global_variable AppState ctx = {0};
 
 void app_init(void) {
   ctx.arena_permanent_storage = arena_create(Megabytes(64));
   ctx.arena_transient_storage = arena_create(Gigabytes(4));
   ctx.input = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
-  ctx.render = push_struct_zero(ctx.arena_permanent_storage, TNT_Render);
+  ctx.render = push_struct_zero(ctx.arena_permanent_storage, Render_State);
   ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
   ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
   ctx.scene = push_struct_zero(ctx.arena_transient_storage, Scene);
-  
-	ctx.events = push_array_zero(ctx.arena_transient_storage, OS_Event, OS_EVENTS_CAPACITY);
+
+  ctx.events = push_array_zero(ctx.arena_transient_storage, OS_Event,
+                               OS_EVENTS_CAPACITY);
 
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, app_on_event);
 
-  if (render_load(ctx.render, ctx.window->handle, str8("./librender_opengl"))) {
-    LOG_INFO("OpenGL Loaded:");
-    LOG_INFO("  Version: %s", ctx.render->api->version);
+	render_init(ctx.render, ctx.window);
 
-    render_init(ctx.render);
-  }
-
-	scene_init(ctx.scene, ctx.arena_transient_storage);
+  scene_init(ctx.scene, ctx.arena_transient_storage);
 }
 
 void app_run(void) {
@@ -44,7 +35,7 @@ void app_run(void) {
   const f64 perf_count_frequency = os_time_frequency();
 
   f64 begin_counter = 0.f;
-	f64 end_counter = 0.f;
+  f64 end_counter = 0.f;
 
   while (!ctx.is_quit) {
     begin_counter = os_time_now();
@@ -56,28 +47,24 @@ void app_run(void) {
     os_window_poll_events(ctx.window);
     app_process_events();
 
-    if (ms_per_frame >= period_max) 
-		{
+    if (ms_per_frame >= period_max) {
       if (ms_per_frame >= 1.f) {
         ms_per_frame = period_max;
       }
 
-			scene_update(ctx.scene, ctx.input, ms_per_frame);
+      scene_update(ctx.scene, ctx.input, ms_per_frame);
 
-			render_begin(ctx.window, ctx.render, scene_get_camera(ctx.scene), ctx.render->default_shader);
+			render_begin(ctx.render, ctx.window, scene_get_camera(ctx.scene), ctx.render->shader_3d);
 
-			for (u32 index = 0; 
-					 index < scene_get_entites_count(ctx.scene); 
-					 index += 1)
-			{
-				Entity *ent = scene_get_entity(ctx.scene, index);
-				Mat4 model_matrix = mat4_identity();
-				model_matrix = mat4_mul_mat4(model_matrix, mat4_translate(ent->position)); 
-				ctx.render->api->uniform_mat4_set(ctx.render->default_shader, str8("model"), *model_matrix.m);
+			for (u64 i = 0; i < scene_get_entites_count(ctx.scene); i += 1) {
+				Entity *ent = scene_get_entity(ctx.scene, i);
+				// render_flush(ctx.render, ent);
+	 		}
 
-				render_flush(ctx.render, ent->mesh);
-			}
-			render_end(ctx.render, ctx.window->handle);
+			draw_line(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 1.0f), COLOR_GREEN);
+			draw_rect(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 1.0f), COLOR_BLUE);
+
+			render_end(ctx.render, ctx.window);
 
       end_counter = begin_counter;
     }
@@ -103,20 +90,18 @@ void app_process_events(void) {
       ctx.ui->mouse_button = event->state;
       break;
     case OS_EVENT_KIND_WINDOW_RESIZED:
-				ctx.window->width = event->window_width;
-				ctx.window->height = event->window_height;
+      ctx.window->width = event->window_width;
+      ctx.window->height = event->window_height;
       break;
     }
     os_input_on_event(ctx.input, event);
-		scene_on_resize(ctx.scene, 
-									v4(ctx.window->xpos, ctx.window->ypos, 
-									ctx.window->width, ctx.window->height));
+    scene_on_resize(ctx.scene, v4(ctx.window->xpos, ctx.window->ypos,
+                                  ctx.window->width, ctx.window->height));
     app_pop_event();
   }
 }
 
-void app_push_event(OS_Event *event) 
-{
+void app_push_event(OS_Event *event) {
   ASSERT(ctx.events_count + 1 > OS_EVENTS_CAPACITY);
 
   OS_Event *pos = ctx.events + ctx.events_count;
@@ -124,8 +109,7 @@ void app_push_event(OS_Event *event)
   ctx.events_count += 1;
 }
 
-void app_pop_event() 
-{
+void app_pop_event() {
   ASSERT(ctx.events_count == 0);
 
   OS_Event *pos = ctx.events + ctx.events_count - 1;
@@ -133,8 +117,7 @@ void app_pop_event()
   ctx.events_count -= 1;
 }
 
-OS_Event *app_get_event(u64 index) 
-{
+OS_Event *app_get_event(u64 index) {
   ASSERT(ctx.events_count == 0);
 
   OS_Event *result = ctx.events + index;

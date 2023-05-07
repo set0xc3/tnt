@@ -1,39 +1,39 @@
-#include "render_opengl.h"
-#include "tnt_render.h"
-#include "tnt_render_types.h"
 #include "tnt_types.h"
-#include "tnt_logger.h"
 #include "tnt_string.h"
+#include "tnt_logger.h"
+#include "tnt_render_types.h"
 #include "tnt_os.h"
-
-#include <stdio.h>
 
 #include <glad/glad.h>
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_video.h>
 
-EXPORT TNT_RenderAPI api = {
-	"1.0.0",
-	gl_init,
-	gl_destroy,
-	gl_begin,
-	gl_flush,
-	gl_end,
-	gl_shader_load,
-	gl_shader_bind,
-	gl_index_buffer_create,
-	gl_index_buffer_bind,
-	gl_vertex_buffer_create,
-	gl_vertex_buffer_bind,
-	gl_vertex_buffer_update,
-	gl_frame_buffer_create,
-	gl_frame_buffer_bind,
-	gl_render_buffer_create,
-	gl_render_buffer_bind,
-	gl_vertex_array_create,
-	gl_vertex_array_bind,
-	gl_uniform_mat4_set,
-};
+#include <stdio.h>
+
+typedef struct Render_Inrernal {
+
+} Render_Inrernal;
+
+internal void gl_init(R_Window *window);
+internal void gl_destroy(R_Window *window);
+internal void gl_begin(R_Window *window, R_Context *context, Vec4 viewport);
+internal void gl_flush(u32 drawing_mode, u64 vertex_count);
+internal void gl_end(R_Window *window);
+internal void gl_window_select(R_Window *window, R_Context *ctx);
+internal u32 	gl_shader_load(String8 vs_path, String8 fs_path, String8 gs_path);
+internal void gl_shader_bind(u32 id);
+internal u32 	gl_index_buffer_create(void *buffer, u64 size);
+internal void gl_index_buffer_bind(u32 id);
+internal u32 	gl_vertex_buffer_create(void *buffer, u64 size);
+internal void gl_vertex_buffer_bind(u32 id);
+internal void gl_vertex_buffer_update(void *buffer, u64 size);
+internal u32 	gl_frame_buffer_create(void *buffer, u64 size);
+internal void gl_frame_buffer_bind(u32 id);
+internal u32 	gl_render_buffer_create(u32 width, u32 height);
+internal void gl_render_buffer_bind(u32 id);
+internal u32 	gl_vertex_array_create(u32 vbo_id, R_VertexAttribs *attribs, u32 size);
+internal void gl_vertex_array_bind(u32 id);
+internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat);
 
 internal void gl_init(R_Window *window)
 {
@@ -252,3 +252,4 @@ internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat)
 {
 	glUniformMatrix4fv(glGetUniformLocation(id, str8_to_char(name)), 1, GL_FALSE, mat);
 }
+

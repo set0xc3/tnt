@@ -1,7 +1,6 @@
 #include "tnt_scene.h"
 #include "tnt_math.h"
 #include "tnt_render_types.h"
-#include "tnt_logger.h"
 
 void scene_on_resize(Scene *scene, Vec4 viewport)
 {
@@ -65,40 +64,11 @@ void scene_init(Scene *scene, TNT_MemoryArena *arena)
 	ent->mesh->vertices = push_array_zero(arena, R_Vertex3D, ArrayCount(cube_vertices));
 	memcpy(ent->mesh->vertices, cube_vertices, sizeof(cube_vertices));
 	ent->mesh->vertices_count = ArrayCount(cube_vertices);
-
-
-	f32 test_mat4[4][4] = 
-	{
-		{1, 0, 1, 0}, 
-		{0, 1, 0, 0}, 
-		{0, 0, 1, 0}, 
-		{0, 0, 0, 1}
-	};
-
-	Mat4 mat4 = mat4_identity();
-	memcpy(mat4.m, test_mat4, sizeof(test_mat4));
-	// mat4_print(mat4);
-
-	Mat4 inv = mat4_inverse(mat4);
-	mat4_print(inv);
 }
 
 void scene_update(Scene *scene, OS_Input *input, f32 dt)
 {
 	camera_update(scene->camera, input, dt);
-
-	Vec2 mouse = {0};
-	os_input_get_mouse_position(input, &mouse.x, &mouse.y);
-
-	Entity *ent = scene_get_entity(scene, 0);
-
-	// Vec3 sceen_coords = mat4_world_to_screen(camera_get_view_matrix(scene->camera), 
-	// 																				v3(mouse.x, mouse.y, 0.0f));
-	Vec3 world_coords = mat4_screen_to_world(v2(mouse.x, mouse.y), 
-																					camera_get_projection_matrix(scene->camera), 
-																					camera_get_view_matrix(scene->camera), 
-																					1920, 1080);
-	ent->position = world_coords;
 }
 
 Entity *scene_push_entity(Scene *scene, Vec3 pos, Vec3 scale)

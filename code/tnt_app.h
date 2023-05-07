@@ -17,7 +17,7 @@ struct AppState
   TNT_MemoryArena *arena_permanent_storage;
   TNT_MemoryArena *arena_transient_storage;
   OS_Input *input;
-  TNT_Render *render;
+  Render_State *render;
   OS_Window *window;
   OS_Event *events;
   u64 events_count;

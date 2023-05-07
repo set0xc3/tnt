@@ -1,5 +1,4 @@
 #include "tnt_math.h"
-#include "tnt_logger.h"
 #include <math.h>
 
 Vec2 v2(f32 x, f32 y)
@@ -538,7 +537,6 @@ Vec3 mat4_screen_to_world(Vec2 screen_coord, Mat4 projection_matrix, Mat4 view_m
   Vec4 eye_coord = mat4_mul_vec4(inv_projection, clip_coord);
   eye_coord.z = -1.0f;
   eye_coord.w = 0.0f;
-	LOG_DEBUG("eye_coord: (%f, %f, %f, %f)", eye_coord.x, eye_coord.y, eye_coord.z, eye_coord.w);
 
   // Преобразование в мировое пространство
   Mat4 inv_view = mat4_inverse(view_matrix);

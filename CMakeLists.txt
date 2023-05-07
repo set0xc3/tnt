@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 set(TARGET tnt)
 project(${TARGET} LANGUAGES C)
 
-add_subdirectory(code/render)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # Set the platform
@@ -40,32 +38,18 @@ message("CMAKE_ARCHIVE_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 find_package(SDL2 REQUIRED)
 set(FILES
-	code/tnt_app.h
+  ${CMAKE_SOURCE_DIR}/vendor/glad/src/glad.c
 	code/tnt_app.c
-	code/tnt_types.h
-	code/tnt_linked_list.h
 	code/tnt_linked_list.c
-	code/tnt_logger.h
-	code/tnt_os.h
 	code/tnt_os.c
-	code/tnt_render.h
 	code/tnt_render.c
-	code/tnt_string.h
-	code/tnt_math.h
 	code/tnt_math.c
-	code/tnt_camera.h
 	code/tnt_camera.c
-	code/tnt_memory_arena.h
 	code/tnt_memory_arena.c
-	code/tnt_ui.h
 	code/tnt_ui.c
-	code/tnt_net.h
 	code/tnt_net.c
-	code/tnt_thread.h
 	code/tnt_thread.c
-	code/tnt_entity.h
 	code/tnt_entity.c
-	code/tnt_scene.h
 	code/tnt_scene.c
 )
 add_executable(${TARGET} ${FILES})

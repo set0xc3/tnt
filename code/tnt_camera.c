@@ -1,5 +1,4 @@
 #include "tnt_camera.h"
-#include "tnt_logger.h"
 #include "tnt_math.h"
 
 void camera_on_resize(Camera *camera, Vec4 viewport)
