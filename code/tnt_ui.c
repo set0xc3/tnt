@@ -1,4 +1,5 @@
 #include "tnt_ui.h"
+
 #include "tnt_render.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
@@ -14,7 +15,7 @@ void ui_begin(UI_State *ctx, Vec2 pos, f32 pad) {
 
 void ui_begin_layout(UI_LayoutKind kind) {}
 
-b32 ui_button(UI_State *ctx, Render_State *render, Vec4 color, Vec2 size,
+b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
               UI_Id id) {
   ASSERT(ctx->layouts_count == 0);
 
@@ -50,26 +51,26 @@ b32 ui_button(UI_State *ctx, Render_State *render, Vec4 color, Vec2 size,
   return click;
 }
 
-void ui_end_layout() {}
+void ui_end_layout(void) {}
 
 void ui_end(UI_State *ctx) { ui_layout_pop(ctx); }
 
 Vec2 ui_layout_available_pos(UI_Layout *layout) {
   Vec2 result = {0};
   switch (layout->kind) {
-  case UI_LayoutKind_Horizontal: {
-    result = v2_add(layout->pos, layout->size);
-    result = v2_add(result, v2(layout->pad, layout->pad));
-    result = v2_mul(result, v2(1.0f, 0.0f));
-    return result;
-  }
-  case UI_LayoutKind_Vertical: {
-    Vec2 result = {0};
-    result = v2_add(layout->pos, layout->size);
-    result = v2_add(result, v2(layout->pad, layout->pad));
-    result = v2_mul(result, v2(0.0f, 1.0f));
-    return result;
-  }
+    case UI_LayoutKind_Horizontal: {
+      result = v2_add(layout->pos, layout->size);
+      result = v2_add(result, v2(layout->pad, layout->pad));
+      result = v2_mul(result, v2(1.0f, 0.0f));
+      return result;
+    }
+    case UI_LayoutKind_Vertical: {
+      Vec2 result = {0};
+      result = v2_add(layout->pos, layout->size);
+      result = v2_add(result, v2(layout->pad, layout->pad));
+      result = v2_mul(result, v2(0.0f, 1.0f));
+      return result;
+    }
   }
   return result;
 }
@@ -83,14 +84,14 @@ void ui_layout_push(UI_State *ctx, UI_Layout layout) {
 
 void ui_layout_push_widget(UI_Layout *layout, Vec2 size) {
   switch (layout->kind) {
-  case UI_LayoutKind_Horizontal:
-    layout->size.x = layout->size.x + size.x + layout->pad;
-    layout->size.y = MAX(layout->size.y, size.y);
-    break;
-  case UI_LayoutKind_Vertical:
-    layout->size.x = MAX(layout->size.x, size.x);
-    layout->size.y = layout->size.y + size.y + layout->pad;
-    break;
+    case UI_LayoutKind_Horizontal:
+      layout->size.x = layout->size.x + size.x + layout->pad;
+      layout->size.y = MAX(layout->size.y, size.y);
+      break;
+    case UI_LayoutKind_Vertical:
+      layout->size.x = MAX(layout->size.x, size.x);
+      layout->size.y = layout->size.y + size.y + layout->pad;
+      break;
   }
 }
 

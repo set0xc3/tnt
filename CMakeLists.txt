@@ -47,7 +47,6 @@ set(FILES
 	code/tnt_camera.c
 	code/tnt_memory_arena.c
 	code/tnt_ui.c
-	code/tnt_net.c
 	code/tnt_thread.c
 	code/tnt_entity.c
 	code/tnt_scene.c

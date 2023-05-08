@@ -22,3 +22,18 @@ cmake --build build --target run
 cmake --build build --target clean
 cmake -DARGS="" -B build && cmake --build build --target run
 
+
+Camera Editor
+Camera Orbit
+Camera Fly
+Camera Static
+
+Editor
+- Viewport
+- Camera
+
+Scene:
+- Root
+    - Camera Static
+    - Cube
+    - Light

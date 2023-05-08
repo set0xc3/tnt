@@ -1,19 +1,23 @@
 #include "tnt_app.h"
-#include "tnt_entity.h"
-#include "tnt_math.h"
-#include "tnt_os.h"
-#include "tnt_scene.h"
-#include "tnt_types.h"
 
 #include <math.h>
 
-global_variable AppState ctx = {0};
+#include "tnt_base_types.h"
+#include "tnt_camera.h"
+#include "tnt_entity.h"
+#include "tnt_math.h"
+#include "tnt_os.h"
+#include "tnt_render_internal.c"
+#include "tnt_render_types.h"
+#include "tnt_scene.h"
+
+global_variable AppState ctx;
 
 void app_init(void) {
   ctx.arena_permanent_storage = arena_create(Megabytes(64));
   ctx.arena_transient_storage = arena_create(Gigabytes(4));
   ctx.input = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
-  ctx.render = push_struct_zero(ctx.arena_permanent_storage, Render_State);
+  ctx.render = push_struct_zero(ctx.arena_permanent_storage, RenderState);
   ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
   ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
   ctx.scene = push_struct_zero(ctx.arena_transient_storage, Scene);
@@ -24,7 +28,7 @@ void app_init(void) {
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, app_on_event);
 
-	render_init(ctx.render, ctx.window);
+  render_init(ctx.render, ctx.window);
 
   scene_init(ctx.scene, ctx.arena_transient_storage);
 }
@@ -36,6 +40,15 @@ void app_run(void) {
 
   f64 begin_counter = 0.f;
   f64 end_counter = 0.f;
+
+  R_Model model_quad = {0};
+  render_create_model(ctx.render, MODEL_STATIC_QUAD, &model_quad);
+
+  R_Model model_cube = {0};
+  render_create_model(ctx.render, MODEL_STATIC_CUBE, &model_cube);
+
+  Camera camera = {0};
+  camera_create(&camera, 45.0f, 0.5625f, 0.1f, 1000.0f);
 
   while (!ctx.is_quit) {
     begin_counter = os_time_now();
@@ -52,19 +65,28 @@ void app_run(void) {
         ms_per_frame = period_max;
       }
 
-      scene_update(ctx.scene, ctx.input, ms_per_frame);
+      camera_on_resize(&camera,
+                       v4(0, 0, ctx.window->width, ctx.window->height));
+      camera_update(&camera, ctx.input, ms_per_frame);
 
-			render_begin(ctx.render, ctx.window, scene_get_camera(ctx.scene), ctx.render->shader_3d);
+      render_begin(ctx.render, ctx.window);
 
-			for (u64 i = 0; i < scene_get_entites_count(ctx.scene); i += 1) {
-				Entity *ent = scene_get_entity(ctx.scene, i);
-				// render_flush(ctx.render, ent);
-	 		}
+      gl_shader_bind(ctx.render->shader_3d);
 
-			draw_line(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 1.0f), COLOR_GREEN);
-			draw_rect(ctx.render, v2(0.0f, 0.0f), v2(1.0f, 1.0f), COLOR_BLUE);
+      Mat4 projection_matrix = camera_get_projection_matrix(&camera);
+      Mat4 view_matrix = camera_get_view_matrix(&camera);
+      Mat4 model_matrix = mat4_identity();
 
-			render_end(ctx.render, ctx.window);
+      gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
+                          *projection_matrix.e);
+      gl_uniform_mat4_set(ctx.render->shader_3d, str8("view"), *view_matrix.e);
+      gl_uniform_mat4_set(ctx.render->shader_3d, str8("model"),
+                          *model_matrix.e);
+
+      gl_flush(DRAWING_MODE_TRIANGLES, &model_quad);
+      gl_flush(DRAWING_MODE_TRIANGLES, &model_cube);
+
+      render_end(ctx.render, ctx.window);
 
       end_counter = begin_counter;
     }
@@ -81,18 +103,18 @@ void app_process_events(void) {
   for (u64 i = 0; i < ctx.events_count; i += 1) {
     event = app_get_event(i);
     switch (event->kind) {
-    case OS_EVENT_KIND_APP_QUIT:
-      os_window_close(ctx.window);
-      ctx.is_quit = true;
-      return;
-      break;
-    case OS_EVENT_KIND_MOUSE_BUTTON:
-      ctx.ui->mouse_button = event->state;
-      break;
-    case OS_EVENT_KIND_WINDOW_RESIZED:
-      ctx.window->width = event->window_width;
-      ctx.window->height = event->window_height;
-      break;
+      case OS_EVENT_KIND_APP_QUIT:
+        os_window_close(ctx.window);
+        ctx.is_quit = true;
+        return;
+        break;
+      case OS_EVENT_KIND_MOUSE_BUTTON:
+        ctx.ui->mouse_button = event->state;
+        break;
+      case OS_EVENT_KIND_WINDOW_RESIZED:
+        ctx.window->width = event->window_width;
+        ctx.window->height = event->window_height;
+        break;
     }
     os_input_on_event(ctx.input, event);
     scene_on_resize(ctx.scene, v4(ctx.window->xpos, ctx.window->ypos,
@@ -109,7 +131,7 @@ void app_push_event(OS_Event *event) {
   ctx.events_count += 1;
 }
 
-void app_pop_event() {
+void app_pop_event(void) {
   ASSERT(ctx.events_count == 0);
 
   OS_Event *pos = ctx.events + ctx.events_count - 1;

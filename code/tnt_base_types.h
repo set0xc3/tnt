@@ -1,11 +1,11 @@
-#ifndef TNT_TYPES_H
-#define TNT_TYPES_H
+#ifndef TNT_BASE_TYPES_H
+#define TNT_BASE_TYPES_H
 
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdarg.h>
 #include <string.h>
 
 #define local_variable static
@@ -30,9 +30,7 @@ typedef i16 b16;
 typedef i32 b32;
 typedef i64 b64;
 
-typedef uintptr_t uintptr;
-
-typedef void *Function;
+typedef void FunctionHandle;
 
 #define Bytes(value) (value)
 #define Kilobytes(value) (value << 10)
@@ -60,11 +58,10 @@ typedef void *Function;
 #define STATIC_ASSERT_BREAK(expr) _Static_assert((expr), "(" #expr ") failed")
 
 #ifdef ENABLE_ASSERT
-#define ASSERT(expr)    \
-    if (expr)           \
-    {                   \
-        ASSERT_BREAK(); \
-    }
+#define ASSERT(expr) \
+  if (expr) {        \
+    ASSERT_BREAK();  \
+  }
 #define STATIC_ASSERT(expr) STATIC_ASSERT_BREAK(expr)
 #else
 #define ASSERT(expr)
@@ -79,7 +76,7 @@ typedef void *Function;
 #error missing platform detection
 #endif
 
-#ifdef PLATFORM_WINDOWS 
+#ifdef PLATFORM_WINDOWS
 #define EXPORT __declspec(dllexport)
 #define IMPORT __declspec(dllimport)
 #else
@@ -87,4 +84,4 @@ typedef void *Function;
 #define IMPORT
 #endif
 
-#endif // TNT_TYPES_H
+#endif  // TNT_BASE_TYPES_H

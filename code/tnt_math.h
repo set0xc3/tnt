@@ -1,95 +1,93 @@
 #if !defined(TNT_MATH_H)
 #define TNT_MATH_H
 
-#include "tnt_types.h"
+#include "tnt_base_types.h"
 
 typedef union Vec2 Vec2;
-union Vec2
-{
-  struct
-  {
+union Vec2 {
+  struct {
     f32 x, y;
   };
-  f32 v[2];
+  struct {
+    f32 left, right;
+  };
+  f32 e[2];
 };
 
 typedef union Vec3 Vec3;
-union Vec3
-{
-  struct
-  {
+union Vec3 {
+  struct {
     f32 x, y, z;
   };
-  f32 v[3];
+  f32 e[3];
 };
 
 typedef union Vec4 Vec4;
-union Vec4
-{
-  struct
-  {
+union Vec4 {
+  struct {
     f32 x, y, z, w;
   };
-  f32 v[4];
+  struct {
+    f32 r, g, b, a;
+  };
+  struct {
+    f32 left, right, top, botton;
+  };
+  f32 e[4];
 };
 
 typedef union Vec2i Vec2i;
-union Vec2i
-{
-  struct
-  {
+union Vec2i {
+  struct {
     i32 x, y;
   };
-  i32 v[2];
+  i32 e[2];
 };
 
 typedef union Vec3i Vec3i;
-union Vec3i
-{
-  struct
-  {
+union Vec3i {
+  struct {
     i32 x, y, z;
   };
-  i32 v[3];
+  i32 e[3];
 };
 
 typedef union Mat2 Mat2;
-union Mat2
-{
-  struct
-  {
+union Mat2 {
+  struct {
     f32 x, y;
   };
-  f32 m[2][2];
+  f32 e[2][2];
 };
 
 typedef union Mat3 Mat3;
-union Mat3
-{
-  struct
-  {
+union Mat3 {
+  struct {
     f32 x, y, z;
   };
-  f32 m[3][3];
+  f32 e[3][3];
 };
 
 typedef union Mat4 Mat4;
-union Mat4
-{
-  struct
-  {
+union Mat4 {
+  struct {
     f32 x, y, z, w;
   };
-  f32 m[4][4];
+  f32 e[4][4];
 };
 
 typedef union Rect Rect;
-union Rect
-{
-  struct
-  {
+union Rect {
+  struct {
     f32 x, y, w, h;
   };
+};
+
+typedef struct Transform Transform;
+struct Transform {
+  Vec3 position;
+  Vec3 rotation;
+  Vec3 scale;
 };
 
 #define V2(n) v2(n, n)
@@ -145,6 +143,12 @@ Vec2 v2_normalize(Vec2 v);
 Vec3 v3_normalize(Vec3 v);
 Vec4 v4_normalize(Vec4 v);
 
+f32 v2_dot(Vec2 left, Vec2 right);
+f32 v3_dot(Vec3 left, Vec3 right);
+f32 v4_dot(Vec4 left, Vec4 right);
+
+Vec3 v3_cross(Vec3 left, Vec3 right);
+
 Vec2i v2i(i32 x, i32 y);
 Vec3i v3i(i32 x, i32 y, i32 z);
 
@@ -164,21 +168,23 @@ Vec3i v3i_div(Vec3i a, Vec3i b);
 
 Mat4 m4(f32 x, f32 y, f32 z, f32 w);
 
-Mat4 mat4_identity();
-Mat4 mat4_mul_mat4(Mat4 a, Mat4 b);
-Vec4 mat4_mul_vec4(Mat4 m, Vec4 v);
-Mat4 mat4_translate(Vec3 pos);
+Mat4 mat4_identity(void);
+Mat4 mat4_mul_mat4(Mat4 left, Mat4 right);
+Vec4 mat4_mul_vec4(Mat4 left, Vec4 right);
+Mat4 mat4_translate(Vec3 translation);
 Mat4 mat4_scale(Vec3 scale);
 Mat4 mat4_rotate(f32 angle, Vec3 axis);
 Mat4 mat4_perspective(f32 fov, f32 aspect, f32 near, f32 far);
 Mat4 mat4_look_at(Vec3 eye, Vec3 center, Vec3 up);
 Mat4 mat4_inverse(Mat4 m);
-Vec3 mat4_world_to_screen(Mat4 m, Vec3 point); // вычисляет координаты точки в пространстве NDC
-Vec3 mat4_screen_to_world(Vec2 screen_coord, 
-													Mat4 projection_matrix, Mat4 view_matrix, 
-													i32 screen_width, i32 screen_height); // преобразует координаты точки на экране в координаты точки в мировом пространстве
-
+Vec3 mat4_world_to_screen(
+    Mat4 m, Vec3 point);  // вычисляет координаты точки в пространстве NDC
+Vec3 mat4_screen_to_world(
+    Vec2 screen_coord, Mat4 projection_matrix, Mat4 view_matrix,
+    i32 screen_width,
+    i32 screen_height);  // преобразует координаты точки на экране в координаты
+                         // точки в мировом пространстве
 
 void mat4_print(Mat4 m);
 
-#endif // TNT_MATH_H
+#endif  // TNT_MATH_H
