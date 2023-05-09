@@ -2,9 +2,6 @@
 
 #include <math.h>
 
-#define M_PI 3.14159265358979323846
-#define M_PIl 3.141592653589793238462643383279502884L
-
 Vec2 v2(f32 x, f32 y) {
   Vec2 v = {0};
   v.x = x;
@@ -307,22 +304,20 @@ Mat4 mat4_scale(Vec3 scale) {
 Mat4 mat4_rotate(f32 angle, Vec3 axis) {
   f32 c = cos(angle);
   f32 s = sin(angle);
-  f32 x = axis.x;
-  f32 y = axis.y;
-  f32 z = axis.z;
+  axis = v3_normalize(axis);
 
   Mat4 result = mat4_identity();
-  result.e[0][0] = x * x * (1 - c) + c;
-  result.e[0][1] = x * y * (1 - c) - z * s;
-  result.e[0][2] = x * z * (1 - c) + y * s;
+  result.e[0][0] = axis.x * axis.x * (1 - c) + c;
+  result.e[0][1] = axis.x * axis.y * (1 - c) - axis.z * s;
+  result.e[0][2] = axis.x * axis.z * (1 - c) + axis.y * s;
   result.e[0][3] = 0.0f;
-  result.e[1][0] = y * x * (1 - c) + z * s;
-  result.e[1][1] = y * y * (1 - c) + c;
-  result.e[1][2] = y * z * (1 - c) - x * s;
+  result.e[1][0] = axis.y * axis.x * (1 - c) + axis.z * s;
+  result.e[1][1] = axis.y * axis.y * (1 - c) + c;
+  result.e[1][2] = axis.y * axis.z * (1 - c) - axis.x * s;
   result.e[1][3] = 0.0f;
-  result.e[2][0] = z * x * (1 - c) - y * s;
-  result.e[2][1] = z * y * (1 - c) + x * s;
-  result.e[2][2] = z * z * (1 - c) + c;
+  result.e[2][0] = axis.z * axis.x * (1 - c) - axis.y * s;
+  result.e[2][1] = axis.z * axis.y * (1 - c) + axis.x * s;
+  result.e[2][2] = axis.z * axis.z * (1 - c) + c;
   result.e[2][3] = 0.0f;
   result.e[3][0] = 0.0f;
   result.e[3][1] = 0.0f;
@@ -535,3 +530,11 @@ void mat4_print(Mat4 m) {
     printf("\n");
   }
 }
+
+f32 to_radiansf(f32 degree) { return degree * (M_PI / 180.0f); }
+
+f32 to_degreesf(f32 radian) { return radian * (180.0f / M_PI); }
+
+f64 to_radians(f64 degree) { return degree * (M_PI / 180.0f); }
+
+f64 to_degrees(f64 radian) { return radian * (180.0f / M_PI); }

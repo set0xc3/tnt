@@ -55,14 +55,14 @@ void camera_update(Camera *camera, OS_Input *input, f32 dt) {
                           camera->move_speed * dt;
   }
   if (os_input_key_pressed(input, OS_KEYCODE_Q)) {
-    camera->fov += 1.0f * dt;
+    camera->fov += 100.0f * dt;
   }
   if (os_input_key_pressed(input, OS_KEYCODE_E)) {
-    camera->fov -= 1.0f * dt;
+    camera->fov -= 100.0f * dt;
   }
 
-  camera->projection_matrix =
-      mat4_perspective(camera->fov, camera->aspect, camera->near, camera->far);
+  camera->projection_matrix = mat4_perspective(
+      to_radiansf(camera->fov), camera->aspect, camera->near, camera->far);
   camera->view_matrix = mat4_look_at(
       camera->position, v3_add(camera->position, camera_front), camera_up);
 }

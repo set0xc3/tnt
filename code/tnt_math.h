@@ -3,6 +3,9 @@
 
 #include "tnt_base_types.h"
 
+#define M_PI 3.14159265358979323846
+#define M_PIl 3.141592653589793238462643383279502884L
+
 typedef union Vec2 Vec2;
 union Vec2 {
   struct {
@@ -184,7 +187,11 @@ Vec3 mat4_screen_to_world(
     i32 screen_width,
     i32 screen_height);  // преобразует координаты точки на экране в координаты
                          // точки в мировом пространстве
-
 void mat4_print(Mat4 m);
+
+f32 to_radiansf(f32 degree);
+f32 to_degreesf(f32 radian);
+f64 to_radians(f64 degree);
+f64 to_degrees(f64 radian);
 
 #endif  // TNT_MATH_H

@@ -34,12 +34,14 @@ void app_init(void) {
 }
 
 void app_run(void) {
-  const f64 fps_max = 60.f;
-  const f64 period_max = 1.f / fps_max;
+  const f64 fps_max = 60.0;
+  const f64 period_max = 1.0 / fps_max;
   const f64 perf_count_frequency = os_time_frequency();
 
-  f64 begin_counter = 0.f;
-  f64 end_counter = 0.f;
+  f64 time = 0.0;
+
+  f64 begin_counter = 0.0;
+  f64 end_counter = 0.0;
 
   R_Model model_quad = {0};
   render_create_model(ctx.render, MODEL_STATIC_QUAD, &model_quad);
@@ -76,6 +78,8 @@ void app_run(void) {
       Mat4 projection_matrix = camera_get_projection_matrix(&camera);
       Mat4 view_matrix = camera_get_view_matrix(&camera);
       Mat4 model_matrix = mat4_identity();
+      model_matrix =
+          mat4_rotate(time * to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f));
 
       gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
                           *projection_matrix.e);
@@ -89,6 +93,7 @@ void app_run(void) {
       render_end(ctx.render, ctx.window);
 
       end_counter = begin_counter;
+      time += ms_per_frame;
     }
     os_sleep((u32)ms_per_frame);
   }
