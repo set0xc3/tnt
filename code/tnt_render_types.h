@@ -52,8 +52,6 @@ struct R_Texture {
 
 typedef struct R_Mesh R_Mesh;
 struct R_Mesh {
-  u32 vbo, vao, ebo;
-
   R_Vertex3D *vertices;
   u64 vertices_count;
 
@@ -66,6 +64,7 @@ struct R_Mesh {
 
 typedef struct R_Model R_Model;
 struct R_Model {
+  u32 vbo, vao, ebo;
   R_Mesh *meshes;
   u64 meshes_count;
 };
@@ -73,14 +72,6 @@ struct R_Model {
 typedef struct R_Sprite R_Sprite;
 struct R_Sprite {
   R_Texture *texture;
-};
-
-typedef struct GameObject GameObject;
-struct GameObject {
-  u64 uuid;
-  Transform transform;
-  R_Sprite sprite;
-  R_Model model;
 };
 
 typedef void R_WindowHandle;

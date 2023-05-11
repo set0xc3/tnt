@@ -8,9 +8,6 @@
 #include "tnt_render_internal.c"
 #include "tnt_render_types.h"
 
-#define MAX_VERTEX_COUNT 1000
-#define MAX_INDEX_COUNT 1000
-
 void render_init(RenderState* render, OS_Window* window) {
   gl_init(window->handle);
 
@@ -25,6 +22,14 @@ void render_init(RenderState* render, OS_Window* window) {
   render->shader_grid =
       gl_shader_load(str8("./assets/shaders/grid_vs.glsl"),
                      str8("./assets/shaders/grid_fs.glsl"), str8(""));
+
+  R_VertexAttribs attribs[] = {{2, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex2D),
+                                GetMember(R_Vertex2D, position)},
+                               {4, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex2D),
+                                GetMember(R_Vertex2D, color)}};
+  render->quad_vbo = gl_vertex_buffer_create(NULL, sizeof(render->quad_buffer));
+  render->quad_vao =
+      gl_vertex_array_create(render->quad_vbo, 0, attribs, ArrayCount(attribs));
 }
 
 void render_begin(RenderState* render, OS_Window* window) {
@@ -33,10 +38,10 @@ void render_begin(RenderState* render, OS_Window* window) {
 }
 
 void render_flush(RenderState* render, Entity* entity) {
-  Mat4 model_matrix = mat4_identity();
+  Mat4 model_matrix = m_identity_m4(1.0f);
   model_matrix =
-      mat4_mul_mat4(model_matrix, mat4_translate(entity->transform.position));
-  gl_uniform_mat4_set(render->shader_3d, str8("model"), *model_matrix.e);
+      m_mul_m4(model_matrix, m_translate(entity->transform.position));
+  gl_uniform_mat4_set(render->shader_3d, str8("model"), *model_matrix.elements);
 
   // gl_shader_bind(render->shader_3d);
   // gl_vertex_buffer_bind(render->vbo_3d);
@@ -47,6 +52,8 @@ void render_flush(RenderState* render, Entity* entity) {
 }
 
 void render_end(RenderState* render, OS_Window* window) {
+  render->quad_buffer_idx = 0;
+
   gl_end(window->handle);
 }
 
@@ -71,12 +78,10 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
       };
       out_model->meshes = os_memory_alloc(0, sizeof(R_Mesh));
       out_model->meshes->indices = os_memory_alloc(0, sizeof(indices));
-      out_model->meshes->vbo =
-          gl_vertex_buffer_create(vertices, sizeof(vertices));
-      out_model->meshes->ebo = gl_index_buffer_create(indices, sizeof(indices));
-      out_model->meshes->vao =
-          gl_vertex_array_create(out_model->meshes->vbo, out_model->meshes->ebo,
-                                 attribs, ArrayCount(attribs));
+      out_model->vbo = gl_vertex_buffer_create(vertices, sizeof(vertices));
+      out_model->ebo = gl_index_buffer_create(indices, sizeof(indices));
+      out_model->vao = gl_vertex_array_create(out_model->vbo, out_model->ebo,
+                                              attribs, ArrayCount(attribs));
       out_model->meshes->vertices = vertices;
       out_model->meshes->vertices_count = ArrayCount(vertices);
       out_model->meshes->indices = (u64*)indices;
@@ -132,11 +137,9 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
                                {v3(-1.0f, 1.0f, -1.0f), COLOR_RED}};
 
       out_model->meshes = os_memory_alloc(0, sizeof(R_Mesh));
-      out_model->meshes->vbo =
-          gl_vertex_buffer_create(vertices, sizeof(vertices));
-      out_model->meshes->vao =
-          gl_vertex_array_create(out_model->meshes->vbo, out_model->meshes->ebo,
-                                 attribs, ArrayCount(attribs));
+      out_model->vbo = gl_vertex_buffer_create(vertices, sizeof(vertices));
+      out_model->vao = gl_vertex_array_create(out_model->vbo, out_model->ebo,
+                                              attribs, ArrayCount(attribs));
       out_model->meshes->vertices = vertices;
       out_model->meshes->vertices_count = ArrayCount(vertices);
       out_model->meshes_count = 1;
@@ -147,15 +150,16 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
   }
 }
 
-void draw_line(RenderState* render, Vec2 v1, Vec2 v2, Vec4 color) {
+void render_draw_line(RenderState* render, Vec2 point1, Vec2 point2,
+                      Vec4 color) {
   R_Vertex2D vertices[] = {
-      {v1, color},
-      {v2, color},
+      {point1, color},
+      {point2, color},
   };
 
-  Mat4 model_matrix = mat4_identity();
+  Mat4 model_matrix = m_identity_m4(1.0f);
   model_matrix =
-      mat4_mul_mat4(model_matrix, mat4_translate(v3(v1.x, v1.y, 0.0f)));
+      m_mul_m4(model_matrix, m_translate(v3(point1.x, point1.y, 0.0f)));
 
   // gl_uniform_mat4_set(render->shader_3d, str8("model"), *model_matrix.m);
   // gl_shader_bind(render->shader_2d);
@@ -165,79 +169,6 @@ void draw_line(RenderState* render, Vec2 v1, Vec2 v2, Vec4 color) {
   // gl_flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
-void draw_rect(RenderState* render, Vec2 position, Vec2 size, Vec4 color) {
-  f32 x = position.x;
-  f32 y = position.y;
-  f32 w = size.x;
-  f32 h = size.y;
-  R_Vertex2D vertices[] = {
-      {v2(x, y), color},         {v2(x + w, y), color},
-      {v2(x + w, y + h), color},
-
-      {v2(x + w, y + h), color}, {v2(x, y + h), color},
-      {v2(x, y), color},
-  };
-
-  // gl_shader_bind(render->shader_2d);
-  // gl_vertex_buffer_bind(render->vbo_2d);
-  // gl_vertex_buffer_update(vertices, sizeof(vertices));
-  // gl_vertex_array_bind(render->vao_2d);
-
-  Mat4 model_matrix = mat4_identity();
-  model_matrix = mat4_mul_mat4(
-      model_matrix, mat4_translate(v3(position.x, position.y, 0.0f)));
-  model_matrix =
-      mat4_mul_mat4(model_matrix, mat4_scale(v3(size.x, size.y, 0.0f)));
-  gl_uniform_mat4_set(render->shader_3d, str8("model"), *model_matrix.e);
-
-  // gl_flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
-}
-
-void draw_cube(RenderState* render, Vec3 position, Vec2 size, Vec4 color) {
-  f32 x = position.x;
-  f32 y = position.y;
-  f32 z = position.y;
-  f32 w = size.x;
-  f32 h = size.y;
-  R_Vertex3D vertices[] = {
-      {v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, -1.0f, -1.0f), color},
-      {v3(1.0f, 1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, 1.0f, -1.0f), color},
-      {v3(-1.0f, 1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, -1.0f, -1.0f), color},
-
-      {v3(-1.0f, -1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, -1.0f, 1.0f), color},
-      {v3(1.0f, 1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, 1.0f, 1.0f), color},
-      {v3(-1.0f, 1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, -1.0f, 1.0f), color},
-
-      {v3(-1.0f, 1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, 1.0f, -1.0f), color},
-      {v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, -1.0f, -1.0f), color},
-      {v3(-1.0f, -1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, 1.0f, 1.0f), color},
-
-      {v3(1.0f, 1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, 1.0f, -1.0f), color},
-      {v3(1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, -1.0f, -1.0f), color},
-      {v3(1.0f, -1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, 1.0f, 1.0f), color},
-
-      {v3(-1.0f, -1.0f, -1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, -1.0f, -1.0f), color},
-      {v3(1.0f, -1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(1.0f, -1.0f, 1.0f), color},
-      {v3(-1.0f, -1.0f, 1.0f), v4(1.0f, 1.0f, 1.0f, 1.0f)},
-      {v3(-1.0f, -1.0f, -1.0f), color},
-  };
-  // gl_shader_bind(render->shader_3d);
-  // gl_vertex_buffer_bind(render->vbo_3d);
-  // gl_vertex_buffer_update(vertices, sizeof(vertices));
-  // gl_vertex_array_bind(render->vao_3d);
-  // gl_flush(DRAWING_MODE_TRIANGLES, ArrayCount(vertices));
+void render_draw_rect(RenderState* render, Vec4 rect, Vec4 color) {
+  push_quad(render, rect, color);
 }

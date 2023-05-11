@@ -9,6 +9,14 @@
 
 #define ENTITIES_CAPASITY 256
 
+typedef struct GameObject GameObject;
+struct GameObject {
+  u64 uuid;
+  Transform transform;
+  R_Sprite sprite;
+  R_Model model;
+};
+
 typedef struct Scene Scene;
 struct Scene {
   MemoryArena *arena;
@@ -17,8 +25,6 @@ struct Scene {
   Entity *entities;
   u64 entities_count;
 };
-
-void scene_on_resize(Scene *scene, Vec4 viewport);
 
 void scene_init(Scene *scene, MemoryArena *arena);
 void scene_update(Scene *scene, OS_Input *input, f32 dt);

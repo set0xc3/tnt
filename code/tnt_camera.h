@@ -25,17 +25,19 @@ struct Camera {
   f32 aspect;
   f32 near;
   f32 far;
-  Mat4 projection_matrix;
+  Mat4 orthographic_matrix;
+  Mat4 perspective_matrix;
   Mat4 view_matrix;
 };
 
-void camera_on_resize(Camera *camera, Vec4 viewport);
+void camera_on_resize(Camera *camera, f32 width, f32 height);
 
 void camera_create(Camera *camera, f32 fov, f32 aspect, f32 near, f32 far);
 void camera_destroy(Camera *camera);
 void camera_update(Camera *camera, OS_Input *input, f32 dt);
 
-Mat4 camera_get_projection_matrix(Camera *camera);
+Mat4 camera_get_orthographic_matrix(Camera *camera);
+Mat4 camera_get_perspective_matrix(Camera *camera);
 Mat4 camera_get_view_matrix(Camera *camera);
 
 #endif  // TNT_CAMERA_H

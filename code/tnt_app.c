@@ -67,28 +67,63 @@ void app_run(void) {
         ms_per_frame = period_max;
       }
 
-      camera_on_resize(&camera,
-                       v4(0, 0, ctx.window->width, ctx.window->height));
+      camera_on_resize(&camera, ctx.window->width, ctx.window->height);
       camera_update(&camera, ctx.input, ms_per_frame);
 
       render_begin(ctx.render, ctx.window);
 
-      gl_shader_bind(ctx.render->shader_3d);
+#if 1
+      {
+        Mat4 projection_matrix = camera_get_perspective_matrix(&camera);
+        Mat4 view_matrix = camera_get_view_matrix(&camera);
+        Mat4 model_matrix = m_identity_m4(1.0f);
+        model_matrix =
+            m_rotate_rh(time * m_to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f));
 
-      Mat4 projection_matrix = camera_get_projection_matrix(&camera);
-      Mat4 view_matrix = camera_get_view_matrix(&camera);
-      Mat4 model_matrix = mat4_identity();
-      model_matrix =
-          mat4_rotate(time * to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f));
+        gl_shader_bind(ctx.render->shader_3d);
+        gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
+                            *projection_matrix.elements);
+        gl_uniform_mat4_set(ctx.render->shader_3d, str8("view"),
+                            *view_matrix.elements);
+        gl_uniform_mat4_set(ctx.render->shader_3d, str8("model"),
+                            *model_matrix.elements);
 
-      gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
-                          *projection_matrix.e);
-      gl_uniform_mat4_set(ctx.render->shader_3d, str8("view"), *view_matrix.e);
-      gl_uniform_mat4_set(ctx.render->shader_3d, str8("model"),
-                          *model_matrix.e);
+        gl_vertex_array_bind(model_quad.vao);
+        gl_flush(DRAWING_MODE_TRIANGLES, model_quad.meshes->vertices_count,
+                 model_quad.meshes->indices_count);
 
-      gl_flush(DRAWING_MODE_TRIANGLES, &model_quad);
-      gl_flush(DRAWING_MODE_TRIANGLES, &model_cube);
+        gl_vertex_array_bind(model_cube.vao);
+        gl_flush(DRAWING_MODE_TRIANGLES, model_cube.meshes->vertices_count,
+                 model_cube.meshes->indices_count);
+      }
+#endif
+
+#if 1
+      {
+        Mat4 ortho_matrix = camera_get_orthographic_matrix(&camera);
+        Mat4 view_matrix = m_identity_m4(1.0f);
+        Mat4 model_matrix = m_identity_m4(1.0f);
+
+        render_draw_rect(ctx.render, v4(-200.0f, 0.0f, 100.0f, 100.0f),
+                         COLOR_PINK);
+        render_draw_rect(ctx.render, v4(0.0f, 0.0f, 100.0f, 100.0f),
+                         COLOR_PINK);
+
+        gl_shader_bind(ctx.render->shader_2d);
+        gl_uniform_mat4_set(ctx.render->shader_2d, str8("projection"),
+                            *ortho_matrix.elements);
+        gl_uniform_mat4_set(ctx.render->shader_2d, str8("view"),
+                            *view_matrix.elements);
+
+        gl_uniform_mat4_set(ctx.render->shader_2d, str8("model"),
+                            *model_matrix.elements);
+        gl_vertex_buffer_bind(ctx.render->quad_vbo);
+        gl_vertex_buffer_update(ctx.render->quad_buffer,
+                                sizeof(ctx.render->quad_buffer));
+        gl_vertex_array_bind(ctx.render->quad_vao);
+      }
+      gl_flush(DRAWING_MODE_TRIANGLES, ctx.render->quad_buffer_idx, 0);
+#endif
 
       render_end(ctx.render, ctx.window);
 
@@ -122,8 +157,6 @@ void app_process_events(void) {
         break;
     }
     os_input_on_event(ctx.input, event);
-    scene_on_resize(ctx.scene, v4(ctx.window->xpos, ctx.window->ypos,
-                                  ctx.window->width, ctx.window->height));
     app_pop_event();
   }
 }

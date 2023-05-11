@@ -3,10 +3,6 @@
 #include "tnt_math.h"
 #include "tnt_render_types.h"
 
-void scene_on_resize(Scene *scene, Vec4 viewport) {
-  camera_on_resize(scene->camera, viewport);
-}
-
 void scene_init(Scene *scene, MemoryArena *arena) {
   scene->arena = arena;
   scene->entities = push_array_zero(arena, Entity, ENTITIES_CAPASITY);
@@ -52,14 +48,15 @@ void scene_init(Scene *scene, MemoryArena *arena) {
       {v3(-1.0f, -1.0f, -1.0f), color},
   };
 
-  Entity *ent = scene_push_entity(scene, v3(0.0f, 0.0f, 0.0f), V3_ONE);
+  Entity *ent =
+      scene_push_entity(scene, v3(0.0f, 0.0f, 0.0f), v3(1.0f, 1.0f, 1.0f));
   ent->mesh = push_struct_zero(arena, R_Mesh);
   ent->mesh->vertices =
       push_array_zero(arena, R_Vertex3D, ArrayCount(cube_vertices));
   memcpy(ent->mesh->vertices, cube_vertices, sizeof(cube_vertices));
   ent->mesh->vertices_count = ArrayCount(cube_vertices);
 
-  ent = scene_push_entity(scene, v3(0.0f, 2.0f, 0.0f), V3_ONE);
+  ent = scene_push_entity(scene, v3(0.0f, 2.0f, 0.0f), v3(1.0f, 1.0f, 1.0f));
   ent->mesh = push_struct_zero(arena, R_Mesh);
   ent->mesh->vertices =
       push_array_zero(arena, R_Vertex3D, ArrayCount(cube_vertices));

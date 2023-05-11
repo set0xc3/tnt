@@ -44,7 +44,7 @@ b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
     }
   }
 
-  draw_rect(render, v2(rect1.x, rect1.y), v2(rect1.z, rect1.w), color);
+  render_draw_rect(render, v4(rect1.x, rect1.y, rect1.z, rect1.w), color);
 
   ui_layout_push_widget(layout, size);
 
@@ -59,16 +59,16 @@ Vec2 ui_layout_available_pos(UI_Layout *layout) {
   Vec2 result = {0};
   switch (layout->kind) {
     case UI_LayoutKind_Horizontal: {
-      result = v2_add(layout->pos, layout->size);
-      result = v2_add(result, v2(layout->pad, layout->pad));
-      result = v2_mul(result, v2(1.0f, 0.0f));
+      result = add_v2(layout->pos, layout->size);
+      result = add_v2(result, v2(layout->pad, layout->pad));
+      result = mul_v2(result, v2(1.0f, 0.0f));
       return result;
     }
     case UI_LayoutKind_Vertical: {
       Vec2 result = {0};
-      result = v2_add(layout->pos, layout->size);
-      result = v2_add(result, v2(layout->pad, layout->pad));
-      result = v2_mul(result, v2(0.0f, 1.0f));
+      result = add_v2(layout->pos, layout->size);
+      result = add_v2(result, v2(layout->pad, layout->pad));
+      result = mul_v2(result, v2(0.0f, 1.0f));
       return result;
     }
   }

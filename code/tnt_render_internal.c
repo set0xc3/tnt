@@ -5,17 +5,16 @@
 #include "tnt_base_types.h"
 #include "tnt_logger.h"
 #include "tnt_os.h"
+#include "tnt_render.h"
 #include "tnt_render_types.h"
 #include "tnt_string.h"
-
-typedef struct Render_Inrernal {
-} Render_Inrernal;
 
 internal void gl_init(R_WindowHandle *window);
 internal void gl_destroy(R_WindowHandle *window);
 internal void gl_begin(R_WindowHandle *window, R_ContextHandle *context,
                        Vec4 viewport);
-internal void gl_flush(R_DrawingMode drawing_mode, R_Model *model);
+internal void gl_flush(R_DrawingMode drawing_mode, u64 vertices_count,
+                       u64 indices_count);
 internal void gl_end(R_WindowHandle *window);
 internal void gl_window_select(R_WindowHandle *window, R_ContextHandle *ctx);
 internal u32 gl_shader_load(String8 vs_path, String8 fs_path, String8 gs_path);
@@ -33,6 +32,8 @@ internal u32 gl_vertex_array_create(u32 vbo, u32 ebo, R_VertexAttribs *attribs,
                                     u32 size);
 internal void gl_vertex_array_bind(u32 id);
 internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat);
+
+internal void push_quad(RenderState *render, Vec4 rect, Vec4 color);
 
 internal void gl_init(R_WindowHandle *window) {
   if (gladLoadGL() == 0) {
@@ -52,11 +53,12 @@ internal void gl_begin(R_WindowHandle *window, R_ContextHandle *context,
   gl_window_select(window, context);
 
   glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-internal void gl_flush(R_DrawingMode drawing_mode, R_Model *model) {
+internal void gl_flush(R_DrawingMode drawing_mode, u64 vertices_count,
+                       u64 indices_count) {
   u32 mode = 0;
   switch (drawing_mode) {
     case DRAWING_MODE_POINTS:
@@ -70,12 +72,10 @@ internal void gl_flush(R_DrawingMode drawing_mode, R_Model *model) {
       break;
   }
 
-  gl_vertex_array_bind(model->meshes->vao);
-
-  if (model->meshes->indices_count == 0) {
-    glDrawArrays(mode, 0, model->meshes->vertices_count);
+  if (indices_count == 0) {
+    glDrawArrays(mode, 0, vertices_count);
   } else {
-    glDrawElements(mode, model->meshes->indices_count, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, indices_count, GL_UNSIGNED_INT, 0);
   }
 }
 
@@ -234,13 +234,33 @@ internal u32 gl_vertex_array_create(u32 vbo, u32 ebo, R_VertexAttribs *attribs,
     glVertexAttribPointer(i, attrib->size, attrib_type, GL_FALSE,
                           attrib->stride, (void *)attrib->pointer);
   }
-  glBindVertexArray(0);
   return id;
 }
 
 internal void gl_vertex_array_bind(u32 id) { glBindVertexArray(id); }
 
 internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat) {
-  glUniformMatrix4fv(glGetUniformLocation(id, str8_to_char(name)), 1, GL_FALSE,
-                     mat);
+  i32 uniform_location = glGetUniformLocation(id, str8_to_char(name));
+  glUniformMatrix4fv(uniform_location, 1, GL_FALSE, mat);
+}
+
+internal void push_quad(RenderState *render, Vec4 rect, Vec4 color) {
+  f32 x = rect.x;
+  f32 y = rect.y;
+  f32 w = rect.z;
+  f32 h = rect.w;
+  R_Vertex2D vertices[] = {
+      {v2(x, y), color},         {v2(x + w, y), color},
+      {v2(x + w, y + h), color},
+
+      {v2(x + w, y + h), color}, {v2(x, y + h), color},
+      {v2(x, y), color},
+  };
+  render->quad_buffer[render->quad_buffer_idx + 0] = vertices[0];
+  render->quad_buffer[render->quad_buffer_idx + 1] = vertices[1];
+  render->quad_buffer[render->quad_buffer_idx + 2] = vertices[2];
+  render->quad_buffer[render->quad_buffer_idx + 3] = vertices[3];
+  render->quad_buffer[render->quad_buffer_idx + 4] = vertices[4];
+  render->quad_buffer[render->quad_buffer_idx + 5] = vertices[5];
+  render->quad_buffer_idx += 6;
 }
