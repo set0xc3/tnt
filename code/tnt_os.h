@@ -2,6 +2,7 @@
 #define TNT_OS_H
 
 #include "tnt_base_types.h"
+#include "tnt_math.h"
 #include "tnt_string.h"
 
 enum OS_EventType {
@@ -94,8 +95,8 @@ b8 os_input_key_up(OS_Input* input, u32 code);
 b8 os_input_button_pressed(OS_Input* input, u32 code);
 b8 os_input_button_down(OS_Input* input, u32 code);
 b8 os_input_button_up(OS_Input* input, u32 code);
-void os_input_get_mouse_position(OS_Input* input, f32* xpos, f32* ypos);
-void os_input_get_mouse_delta(OS_Input* input, f32* xdelta, f32* ydelta);
+Vec2 os_input_get_mouse_position(OS_Input* input);
+Vec2 os_input_get_mouse_delta(OS_Input* input);
 f32 os_input_get_mouse_scroll_y(OS_Input* input);
 
 b8 os_window_open(OS_Window* window, const char* title, u32 width, u32 height,

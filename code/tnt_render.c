@@ -37,20 +37,6 @@ void render_begin(RenderState* render, OS_Window* window) {
            v4(0.0f, 0.0f, window->width, window->height));
 }
 
-void render_flush(RenderState* render, Entity* entity) {
-  Mat4 model_matrix = m_identity_m4(1.0f);
-  model_matrix =
-      m_mul_m4(model_matrix, m_translate(entity->transform.position));
-  gl_uniform_mat4_set(render->shader_3d, str8("model"), *model_matrix.elements);
-
-  // gl_shader_bind(render->shader_3d);
-  // gl_vertex_buffer_bind(render->vbo_3d);
-  // gl_vertex_buffer_update(entity->mesh->vertices,
-  //                         sizeof(R_Vertex3D) * entity->mesh->vertices_count);
-  // gl_vertex_array_bind(render->vao_3d);
-  // gl_flush(DRAWING_MODE_TRIANGLES, entity->mesh->vertices_count);
-}
-
 void render_end(RenderState* render, OS_Window* window) {
   render->quad_buffer_idx = 0;
 

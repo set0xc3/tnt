@@ -134,12 +134,6 @@ typedef union Mat4 {
   Vec4 columns[4];
 } Mat4;
 
-typedef struct Transform {
-  Vec3 position;
-  Vec3 rotation;
-  Vec3 scale;
-} Transform;
-
 #define COLOR_RED v4(1.0f, 0.0f, 0.0f, 1.0f)
 #define COLOR_RED_DARK v4(0.5f, 0.0f, 0.0f, 1.0f)
 #define COLOR_GREEN v4(0.0f, 1.0f, 0.0f, 1.0f)

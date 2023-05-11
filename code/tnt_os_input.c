@@ -1,3 +1,4 @@
+#include "tnt_math.h"
 #include "tnt_os.h"
 
 void os_input_on_event(OS_Input *input, OS_Event *event) {
@@ -51,12 +52,21 @@ b8 os_input_button_up(OS_Input *input, u32 code) {
   return input->last_button[code] && !input->button[code];
 }
 
-void os_input_get_mouse_position(OS_Input *input, f32 *xpos, f32 *ypos) {
-  *xpos = input->mouse_x;
-  *ypos = input->mouse_y;
+Vec2 os_input_get_mouse_position(OS_Input *input) {
+  Vec2 result;
+  result.x = input->mouse_x;
+  result.y = input->mouse_y;
+
+  return result;
 }
 
-void os_input_get_mouse_delta(OS_Input *input, f32 *xdelta, f32 *ydelta) {}
+Vec2 os_input_get_mouse_delta(OS_Input *input) {
+  Vec2 result;
+  result.x = input->mouse_delta_x;
+  result.y = input->mouse_delta_y;
+
+  return result;
+}
 
 f32 os_input_get_mouse_scroll_y(OS_Input *input) {
   return input->mouse_wheel_y;

@@ -3,7 +3,6 @@
 
 #include "tnt_base_types.h"
 #include "tnt_camera.h"
-#include "tnt_entity.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
 #include "tnt_render_types.h"
@@ -21,7 +20,6 @@ struct RenderState {
 
 void render_init(RenderState *render, OS_Window *window);
 void render_begin(RenderState *render, OS_Window *window);
-void render_flush(RenderState *render, Entity *entity);
 void render_end(RenderState *render, OS_Window *window);
 
 void render_create_model(RenderState *render, R_ModelStatic enum_model,

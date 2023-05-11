@@ -4,7 +4,6 @@
 
 #include "tnt_base_types.h"
 #include "tnt_camera.h"
-#include "tnt_entity.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
 #include "tnt_render_internal.c"
@@ -72,13 +71,22 @@ void app_run(void) {
 
       render_begin(ctx.render, ctx.window);
 
+      f32 half_height = ctx.window->height / 2.0f;
+      f32 half_width = ctx.window->width / 2.0f;
+
+      Vec2 mouse_pos = os_input_get_mouse_position(ctx.input);
+      mouse_pos.x = mouse_pos.x - half_width;
+      mouse_pos.y = -mouse_pos.y + half_height;
 #if 1
       {
         Mat4 projection_matrix = camera_get_perspective_matrix(&camera);
         Mat4 view_matrix = camera_get_view_matrix(&camera);
+
+        Vec3 model_pos = v3(0.0f, 0.0f, 0.0f);
         Mat4 model_matrix = m_identity_m4(1.0f);
-        model_matrix =
-            m_rotate_rh(time * m_to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f));
+        model_matrix = m_mul_m4(
+            m_translate(model_pos),
+            m_rotate_rh(time * m_to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f)));
 
         gl_shader_bind(ctx.render->shader_3d);
         gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
@@ -106,7 +114,8 @@ void app_run(void) {
 
         render_draw_rect(ctx.render, v4(-200.0f, 0.0f, 100.0f, 100.0f),
                          COLOR_PINK);
-        render_draw_rect(ctx.render, v4(0.0f, 0.0f, 100.0f, 100.0f),
+        render_draw_rect(ctx.render,
+                         v4(mouse_pos.x, mouse_pos.y, 100.0f, 100.0f),
                          COLOR_PINK);
 
         gl_shader_bind(ctx.render->shader_2d);
