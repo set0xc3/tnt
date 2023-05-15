@@ -23,11 +23,11 @@ void render_init(RenderState* render, OS_Window* window) {
       gl_shader_load(str8("./assets/shaders/grid_vs.glsl"),
                      str8("./assets/shaders/grid_fs.glsl"), str8(""));
 
-  R_VertexAttribs attribs[] = {{2, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex2D),
-                                GetMember(R_Vertex2D, position)},
-                               {4, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex2D),
-                                GetMember(R_Vertex2D, color)}};
-  render->quad_vbo = gl_vertex_buffer_create(NULL, sizeof(render->quad_buffer));
+  R_VertexAttribs attribs[] = {
+      {2, R_FLOAT, sizeof(R_Vertex2D), GetMember(R_Vertex2D, position)},
+      {4, R_FLOAT, sizeof(R_Vertex2D), GetMember(R_Vertex2D, color)}};
+  render->quad_vbo =
+      gl_vertex_buffer_create(NULL, sizeof(render->quad_vertices));
   render->quad_vao =
       gl_vertex_array_create(render->quad_vbo, 0, attribs, ArrayCount(attribs));
 }
@@ -48,10 +48,8 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
   switch (enum_model) {
     case MODEL_STATIC_QUAD: {
       R_VertexAttribs attribs[] = {
-          {3, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex3D),
-           GetMember(R_Vertex3D, position)},
-          {4, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex3D),
-           GetMember(R_Vertex3D, color)}};
+          {3, R_FLOAT, sizeof(R_Vertex3D), GetMember(R_Vertex3D, position)},
+          {4, R_FLOAT, sizeof(R_Vertex3D), GetMember(R_Vertex3D, color)}};
       R_Vertex3D vertices[] = {
           // positions         // colors
           {v3(0.5f, 0.5f, 0.0f), v4(1.0f, 0.0f, 0.0f, 1.0f)},
@@ -76,10 +74,8 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
     } break;
     case MODEL_STATIC_CUBE: {
       R_VertexAttribs attribs[] = {
-          {3, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex3D),
-           GetMember(R_Vertex3D, position)},
-          {4, ATTRIB_DATA_TYPE_FLOAT, sizeof(R_Vertex3D),
-           GetMember(R_Vertex3D, color)}};
+          {3, R_FLOAT, sizeof(R_Vertex3D), GetMember(R_Vertex3D, position)},
+          {4, R_FLOAT, sizeof(R_Vertex3D), GetMember(R_Vertex3D, color)}};
       R_Vertex3D vertices[] = {{v3(-1.0f, -1.0f, -1.0f), COLOR_RED},
                                {v3(1.0f, -1.0f, -1.0f), COLOR_GREEN},
                                {v3(1.0f, 1.0f, -1.0f), COLOR_BLUE},

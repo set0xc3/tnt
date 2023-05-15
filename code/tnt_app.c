@@ -4,11 +4,13 @@
 
 #include "tnt_base_types.h"
 #include "tnt_camera.h"
+#include "tnt_logger.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
 #include "tnt_render_internal.c"
 #include "tnt_render_types.h"
 #include "tnt_scene.h"
+#include "tnt_ui.h"
 
 global_variable AppState ctx;
 
@@ -62,7 +64,7 @@ void app_run(void) {
     app_process_events();
 
     if (ms_per_frame >= period_max) {
-      if (ms_per_frame >= 1.f) {
+      if (ms_per_frame >= 1.0) {
         ms_per_frame = period_max;
       }
 
@@ -112,11 +114,19 @@ void app_run(void) {
         Mat4 view_matrix = m_identity_m4(1.0f);
         Mat4 model_matrix = m_identity_m4(1.0f);
 
-        render_draw_rect(ctx.render, v4(-200.0f, 0.0f, 100.0f, 100.0f),
-                         COLOR_PINK);
+        // render_draw_rect(ctx.render, v4(0, 0, 100.0f, 100.0f), COLOR_PINK);
+
         render_draw_rect(ctx.render,
                          v4(mouse_pos.x, mouse_pos.y, 100.0f, 100.0f),
                          COLOR_PINK);
+
+        ui_begin(ctx.ui, v2(0.0f, 0.0f), 0.0f);
+
+        if (ui_button(ctx.ui, ctx.render, COLOR_BLUE, v2(100.0f, 100.0f), 0)) {
+          // LOG_DEBUG("[UI] Button:0");
+        }
+
+        ui_end(ctx.ui);
 
         gl_shader_bind(ctx.render->shader_2d);
         gl_uniform_mat4_set(ctx.render->shader_2d, str8("projection"),
@@ -127,11 +137,11 @@ void app_run(void) {
         gl_uniform_mat4_set(ctx.render->shader_2d, str8("model"),
                             *model_matrix.elements);
         gl_vertex_buffer_bind(ctx.render->quad_vbo);
-        gl_vertex_buffer_update(ctx.render->quad_buffer,
-                                sizeof(ctx.render->quad_buffer));
+        gl_vertex_buffer_update(ctx.render->quad_vertices,
+                                sizeof(ctx.render->quad_vertices));
         gl_vertex_array_bind(ctx.render->quad_vao);
       }
-      gl_flush(DRAWING_MODE_TRIANGLES, ctx.render->quad_buffer_idx, 0);
+      gl_flush(DRAWING_MODE_TRIANGLES, ctx.render->quad_buffer_idx * 6, 0);
 #endif
 
       render_end(ctx.render, ctx.window);
@@ -159,6 +169,7 @@ void app_process_events(void) {
         break;
       case OS_EVENT_KIND_MOUSE_BUTTON:
         ctx.ui->mouse_button = event->state;
+        // LOG_DEBUG("[EVENT] MouseButton:%i", ctx.ui->mouse_button);
         break;
       case OS_EVENT_KIND_WINDOW_RESIZED:
         ctx.window->width = event->window_width;

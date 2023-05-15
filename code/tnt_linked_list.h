@@ -11,11 +11,10 @@ struct LinkedListNode {
   LinkedListNode *prev;
 };
 
-typedef struct LinkedListList LinkedListList;
-struct LinkedListList {
+typedef struct LinkedListList {
   LinkedListNode *head;
   LinkedListNode *tail;
-};
+} LinkedListList;
 
 void linked_list_push_front(LinkedListList *list, LinkedListNode *node);
 void linked_list_push_back(LinkedListList *list, LinkedListNode *node);
@@ -25,14 +24,13 @@ void linked_list_remove(LinkedListList *list, LinkedListNode *node);
 void linked_list_clear(LinkedListList *list);
 b8 linked_list_is_empty(LinkedListList *list);
 
-typedef struct LinkedList_Iterator LinkedList_Iterator;
-struct LinkedList_Iterator {
+typedef struct LinkedListIterator {
   LinkedListNode *current;
   u64 offset;
-};
+} LinkedListIterator;
 
-void *linked_list_iterate_next(LinkedList_Iterator *it);
-void *linked_list_iterate_prev(LinkedList_Iterator *it);
+void *linked_list_iterate_next(LinkedListIterator *it);
+void *linked_list_iterate_prev(LinkedListIterator *it);
 
 #define linked_list_iterator_head(l, t, d) \
   ((LinkedList_Iterator){l.head, offsetof(t, d)})

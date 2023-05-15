@@ -10,8 +10,7 @@
 
 #define OS_EVENTS_CAPACITY 256
 
-typedef struct AppState AppState;
-struct AppState {
+typedef struct AppState {
   b8 is_quit;
   MemoryArena *arena_permanent_storage;
   MemoryArena *arena_transient_storage;
@@ -22,7 +21,7 @@ struct AppState {
   u64 events_count;
   UI_State *ui;
   Scene *scene;
-};
+} AppState;
 
 void app_init(void);
 void app_run(void);

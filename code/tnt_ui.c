@@ -1,9 +1,7 @@
 #include "tnt_ui.h"
 
+#include "tnt_logger.h"
 #include "tnt_render.h"
-
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 void ui_begin(UI_State *ctx, Vec2 pos, f32 pad) {
   UI_Layout layout = {0};
@@ -22,7 +20,7 @@ b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
   UI_Layout *layout = ui_layout_top(ctx);
   const Vec2 pos = ui_layout_available_pos(layout);
   const Vec4 rect1 = v4(pos.x, pos.y, size.x, size.y);
-  const Vec4 rect2 = v4(ctx->mouse_pos.x, ctx->mouse_pos.y, 0.0f, 0.0f);
+  const Vec4 rect2 = v4(ctx->mouse_pos.x, ctx->mouse_pos.y, 10.0f, 10.0f);
 
   b32 click = false;
   if (ctx->active_id == id) {
@@ -31,6 +29,7 @@ b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
           rect1.y < rect2.y + rect2.z && rect1.z + rect1.y > rect2.y) {
         ctx->active_id = 0;
         click = true;
+        LOG_DEBUG("[UI] Button");
       }
     }
   } else {
@@ -43,6 +42,9 @@ b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
       }
     }
   }
+
+  // LOG_DEBUG("[UI] mouse_button: %lu", ctx->mouse_button);
+  // LOG_DEBUG("[UI] active_id: %lu", ctx->active_id);
 
   render_draw_rect(render, v4(rect1.x, rect1.y, rect1.z, rect1.w), color);
 
@@ -98,7 +100,7 @@ void ui_layout_push_widget(UI_Layout *layout, Vec2 size) {
 void ui_layout_pop(UI_State *ctx) {
   ASSERT(ctx->layouts_count == 0);
 
-  UI_Layout *layout = ctx->layouts - ctx->layouts_count - 1;
+  UI_Layout *layout = &ctx->layouts[ctx->layouts_count - 1];
   memset(layout, 0, sizeof(UI_Layout));
   ctx->layouts_count -= 1;
 }
@@ -108,6 +110,6 @@ UI_Layout *ui_layout_top(UI_State *ctx) {
 
   UI_Layout *result = 0;
 
-  result = ctx->layouts - ctx->layouts_count - 1;
+  result = &ctx->layouts[ctx->layouts_count - 1];
   return result;
 }

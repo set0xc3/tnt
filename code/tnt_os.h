@@ -5,7 +5,7 @@
 #include "tnt_math.h"
 #include "tnt_string.h"
 
-enum OS_EventType {
+typedef enum OS_EventType {
   OS_EVENT_KIND_NONE,
   OS_EVENT_KIND_APP_QUIT,
   OS_EVENT_KIND_KEY_CODE,
@@ -15,19 +15,18 @@ enum OS_EventType {
   OS_EVENT_KIND_WINDOW_RESIZED,
   OS_EVENT_KIND_WINDOW_MOVED,
   OS_EVENT_KIND_COUNT
-};
+} OS_EventType;
 
-typedef struct OS_Event OS_Event;
-struct OS_Event {
+typedef struct OS_Event {
   u32 kind;
   i32 state;
   u32 code;
   f32 mouse_x, mouse_y;
   f32 mouse_wheel_y;
   i32 window_width, window_height;
-};
+} OS_Event;
 
-enum OS_KeyCode {
+typedef enum OS_KeyCode {
   OS_KEYCODE_NONE,
   OS_KEYCODE_A,
   OS_KEYCODE_D,
@@ -37,18 +36,17 @@ enum OS_KeyCode {
   OS_KEYCODE_E,
   OS_KEYCODE_ESCAPE,
   OS_KEYCODE_COUNT
-};
+} OS_KeyCod;
 
-enum OS_MouseButton {
+typedef enum OS_MouseButton {
   OS_MOUSE_BUTTON_NONE,
   OS_MOUSE_BUTTON_LEFT,
   OS_MOUSE_BUTTON_MIDDLE,
   OS_MOUSE_BUTTON_RIGHT,
   OS_MOUSE_BUTTON_COUNT
-};
+} OS_MouseButton;
 
-typedef struct OS_Input OS_Input;
-struct OS_Input {
+typedef struct OS_Input {
   b32 last_key[OS_KEYCODE_COUNT];
   b32 key[OS_KEYCODE_COUNT];
 
@@ -58,10 +56,9 @@ struct OS_Input {
   f32 mouse_x, mouse_y;
   f32 mouse_delta_x, mouse_delta_y;
   f32 mouse_wheel_y;
-};
+} OS_Input;
 
-typedef struct OS_Window OS_Window;
-struct OS_Window {
+typedef struct OS_Window {
   const char* title;
   u32 width, height;
   u32 xpos, ypos;
@@ -69,7 +66,7 @@ struct OS_Window {
   void* render;
 
   void (*event_callback)(OS_Event* event);
-};
+} OS_Window;
 
 void os_init(void);
 void os_shutdown(void);

@@ -3,11 +3,10 @@
 
 #include "tnt_base_types.h"
 
-typedef struct String8 String8;
-struct String8 {
+typedef struct String8 {
   u8 *data;
   u32 size;
-};
+} String8;
 
 #define str8(s) \
   (String8) { (u8 *)s, sizeof(s) - 1 }

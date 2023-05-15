@@ -216,9 +216,9 @@ internal void gl_render_buffer_bind(u32 id) {
 internal u32 gl_vertex_array_create(u32 vbo, u32 ebo, R_VertexAttribs *attribs,
                                     u32 size) {
   u32 attrib_type = 0;
-  if (attribs->data_type == ATTRIB_DATA_TYPE_FLOAT) {
+  if (attribs->data_type == R_FLOAT) {
     attrib_type = GL_FLOAT;
-  } else if (attribs->data_type == ATTRIB_DATA_TYPE_INT) {
+  } else if (attribs->data_type == R_INT) {
     attrib_type = GL_INT;
   }
 
@@ -245,10 +245,16 @@ internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat) {
 }
 
 internal void push_quad(RenderState *render, Vec4 rect, Vec4 color) {
+  if (render->quad_buffer_idx == QUAD_MAX) {
+    LOG_WARNING("QUAD MAX!");
+    return;
+  }
+
   f32 x = rect.x;
   f32 y = rect.y;
   f32 w = rect.z;
   f32 h = rect.w;
+
   R_Vertex2D vertices[] = {
       {v2(x, y), color},         {v2(x + w, y), color},
       {v2(x + w, y + h), color},
@@ -256,11 +262,13 @@ internal void push_quad(RenderState *render, Vec4 rect, Vec4 color) {
       {v2(x + w, y + h), color}, {v2(x, y + h), color},
       {v2(x, y), color},
   };
-  render->quad_buffer[render->quad_buffer_idx + 0] = vertices[0];
-  render->quad_buffer[render->quad_buffer_idx + 1] = vertices[1];
-  render->quad_buffer[render->quad_buffer_idx + 2] = vertices[2];
-  render->quad_buffer[render->quad_buffer_idx + 3] = vertices[3];
-  render->quad_buffer[render->quad_buffer_idx + 4] = vertices[4];
-  render->quad_buffer[render->quad_buffer_idx + 5] = vertices[5];
-  render->quad_buffer_idx += 6;
+
+  u64 offset = render->quad_buffer_idx * 6;
+  render->quad_vertices[offset + 0] = vertices[0];
+  render->quad_vertices[offset + 1] = vertices[1];
+  render->quad_vertices[offset + 2] = vertices[2];
+  render->quad_vertices[offset + 3] = vertices[3];
+  render->quad_vertices[offset + 4] = vertices[4];
+  render->quad_vertices[offset + 5] = vertices[5];
+  render->quad_buffer_idx += 1;
 }

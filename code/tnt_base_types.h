@@ -84,4 +84,7 @@ typedef void FunctionHandle;
 #define IMPORT
 #endif
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 #endif  // TNT_BASE_TYPES_H

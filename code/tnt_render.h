@@ -7,16 +7,18 @@
 #include "tnt_os.h"
 #include "tnt_render_types.h"
 
-typedef struct RenderState RenderState;
-struct RenderState {
+#define QUAD_MAX 1000
+#define QUAD_BUFFER_CAPASITY QUAD_MAX * 6
+
+typedef struct RenderState {
   R_ShaderHandle shader_3d;
   R_ShaderHandle shader_2d;
   R_ShaderHandle shader_grid;
 
   u32 quad_vbo, quad_veo, quad_vao;
-  R_Vertex2D quad_buffer[1000];
+  R_Vertex2D quad_vertices[QUAD_BUFFER_CAPASITY];
   u64 quad_buffer_idx;
-};
+} RenderState;
 
 void render_init(RenderState *render, OS_Window *window);
 void render_begin(RenderState *render, OS_Window *window);

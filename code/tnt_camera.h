@@ -5,8 +5,7 @@
 #include "tnt_math.h"
 #include "tnt_os.h"
 
-typedef struct Camera Camera;
-struct Camera {
+typedef struct Camera {
   Vec3 position;
   Vec3 rotation;
   Vec3 scale;
@@ -28,7 +27,7 @@ struct Camera {
   Mat4 orthographic_matrix;
   Mat4 perspective_matrix;
   Mat4 view_matrix;
-};
+} Camera;
 
 void camera_on_resize(Camera *camera, f32 width, f32 height);
 

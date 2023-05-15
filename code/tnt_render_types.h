@@ -4,54 +4,46 @@
 #include "tnt_math.h"
 #include "tnt_string.h"
 
-typedef u32 R_DrawingMode;
-enum R_DrawingMode {
+typedef enum R_DrawingMode {
   DRAWING_MODE_POINTS,
   DRAWING_MODE_LINES,
   DRAWING_MODE_TRIANGLES,
-};
+} R_DrawingMode;
 
-typedef u32 R_AttribDataType;
-enum R_AttribDataType {
-  ATTRIB_DATA_TYPE_FLOAT,
-  ATTRIB_DATA_TYPE_INT,
-};
+typedef enum R_DataType {
+  R_FLOAT,
+  R_INT,
+} R_DataType;
 
-typedef u32 R_ModelStatic;
-enum R_ModelStatic {
+typedef enum R_ModelStatic {
   MODEL_STATIC_QUAD,
   MODEL_STATIC_CUBE,
-};
+} R_ModelStatic;
 
-typedef struct R_VertexAttribs R_VertexAttribs;
-struct R_VertexAttribs {
+typedef struct R_VertexAttribs {
   u64 size;
-  R_AttribDataType data_type;
+  R_DataType data_type;
   u64 stride;
   u64 pointer;
-};
+} R_VertexAttribs;
 
-typedef struct R_Vertex2D R_Vertex2D;
-struct R_Vertex2D {
+typedef struct R_Vertex2D {
   Vec2 position;
   Vec4 color;
-};
+} R_Vertex2D;
 
-typedef struct R_Vertex3D R_Vertex3D;
-struct R_Vertex3D {
+typedef struct R_Vertex3D {
   Vec3 position;
   Vec4 color;
-};
+} R_Vertex3D;
 
-typedef struct R_Texture R_Texture;
-struct R_Texture {
+typedef struct R_Texture {
   u32 id;
   String8 type;
   String8 path;
-};
+} R_Texture;
 
-typedef struct R_Mesh R_Mesh;
-struct R_Mesh {
+typedef struct R_Mesh {
   R_Vertex3D *vertices;
   u64 vertices_count;
 
@@ -60,19 +52,17 @@ struct R_Mesh {
 
   R_Texture *textures;
   u64 textures_count;
-};
+} R_Mesh;
 
-typedef struct R_Model R_Model;
-struct R_Model {
+typedef struct R_Model {
   u32 vbo, vao, ebo;
   R_Mesh *meshes;
   u64 meshes_count;
-};
+} R_Model;
 
-typedef struct R_Sprite R_Sprite;
-struct R_Sprite {
+typedef struct R_Sprite {
   R_Texture *texture;
-};
+} R_Sprite;
 
 typedef void R_WindowHandle;
 typedef void R_ContextHandle;

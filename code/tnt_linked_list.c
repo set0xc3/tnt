@@ -104,7 +104,7 @@ void linked_list_clear(LinkedListList *list) {
 
 b8 linked_list_is_empty(LinkedListList *list) { return list->head == 0; }
 
-void *linked_list_iterate_next(LinkedList_Iterator *it) {
+void *linked_list_iterate_next(LinkedListIterator *it) {
   LinkedListNode *node = it->current;
   if (node == 0) {
     return 0;
@@ -113,7 +113,7 @@ void *linked_list_iterate_next(LinkedList_Iterator *it) {
   return (void *)(u64)node - it->offset;
 }
 
-void *linked_list_iterate_prev(LinkedList_Iterator *it) {
+void *linked_list_iterate_prev(LinkedListIterator *it) {
   LinkedListNode *node = it->current;
   if (node == 0) {
     return 0;

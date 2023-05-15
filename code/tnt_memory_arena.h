@@ -13,12 +13,11 @@ Scratch/Temporary Allocation
 
 // API
 
-typedef struct MemoryArena MemoryArena;
-struct MemoryArena {
+typedef struct MemoryArena {
   u8 *data;
   u64 size;
   u64 offset;
-};
+} MemoryArena;
 
 #define DEFAULT_ARENA_SIZE Gigabytes(4)
 #define DEFAULT_ALIGNMENT (8 * sizeof(void *))
@@ -45,11 +44,10 @@ u64 arena_get_offset(MemoryArena *arena);
 
 // MemoryArenaTemp
 
-typedef struct MemoryArenaTemp MemoryArenaTemp;
-struct MemoryArenaTemp {
+typedef struct MemoryArenaTemp {
   MemoryArena *arena;
   u64 offset;
-};
+} MemoryArenaTemp;
 
 MemoryArenaTemp arena_temp_begin(MemoryArena *arena);
 void arena_temp_end(MemoryArenaTemp temp);

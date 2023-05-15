@@ -49,6 +49,7 @@ set(FILES
 	code/tnt_ui.c
 	code/tnt_thread.c
 	code/tnt_scene.c
+    code/tnt_game.c
 )
 add_executable(${TARGET} ${FILES})
 target_include_directories(${TARGET} PRIVATE
