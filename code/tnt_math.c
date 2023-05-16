@@ -178,15 +178,15 @@ Vec4 div_v4f(Vec4 left, f32 right) {
   return v;
 }
 
-b32 eq_v2(Vec2 left, Vec2 right) {
+b32 is_equal_v2(Vec2 left, Vec2 right) {
   return left.x == right.x && left.y == right.y;
 }
 
-b32 eq_v3(Vec3 left, Vec3 right) {
+b32 is_equal_v3(Vec3 left, Vec3 right) {
   return left.x == right.x && left.y == right.y && left.z == right.z;
 }
 
-b32 eq_v4(Vec4 left, Vec4 right) {
+b32 is_equal_v4(Vec4 left, Vec4 right) {
   return left.x == right.x && left.y == right.y && left.z == right.z &&
          left.w == right.w;
 }

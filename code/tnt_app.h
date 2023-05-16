@@ -8,17 +8,21 @@
 #include "tnt_scene.h"
 #include "tnt_ui.h"
 
-#define OS_EVENTS_CAPACITY 256
+#define OS_EVENTS_STATE_STACK_SIZE 256
 
 typedef struct AppState {
-  b8 is_quit;
   MemoryArena *arena_permanent_storage;
   MemoryArena *arena_transient_storage;
+
+  b8 is_quit;
+
   OS_Input *input;
-  RenderState *render;
+  RenderContext *render;
   OS_Window *window;
-  OS_Event *events;
-  u64 events_count;
+
+  OS_Event *event_stack;
+  u64 events_stack_idx;
+
   UI_State *ui;
   Scene *scene;
 } AppState;

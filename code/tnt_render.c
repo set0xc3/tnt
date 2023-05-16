@@ -7,8 +7,9 @@
 #include "tnt_os.h"
 #include "tnt_render_internal.c"
 #include "tnt_render_types.h"
+#include "tnt_ui.h"
 
-void render_init(RenderState* render, OS_Window* window) {
+void render_init(RenderContext* render, OS_Window* window) {
   gl_init(window->handle);
 
   render->shader_2d =
@@ -32,18 +33,41 @@ void render_init(RenderState* render, OS_Window* window) {
       gl_vertex_array_create(render->quad_vbo, 0, attribs, ArrayCount(attribs));
 }
 
-void render_begin(RenderState* render, OS_Window* window) {
+void render_begin(RenderContext* render, OS_Window* window) {
   gl_begin(window->handle, window->render,
            v4(0.0f, 0.0f, window->width, window->height));
 }
 
-void render_end(RenderState* render, OS_Window* window) {
+void render_end(RenderContext* render, OS_Window* window) {
   render->quad_buffer_idx = 0;
 
   gl_end(window->handle);
 }
 
-void render_create_model(RenderState* render, R_ModelStatic enum_model,
+void render_set_depth_state(RenderContext* render, b32 enabled) {
+  if (render->state_stack_idx == 0) {
+    return;
+  }
+
+  render->current_state = &render->state_stack[render->state_stack_idx - 1];
+  render->current_state->depth_is_enabled = enabled;
+}
+
+void render_push_state(RenderContext* render) {
+  ASSERT(render->state_stack_idx + 1 > RENDER_STATE_STACK_SIZE)
+
+  render->state_stack_idx += 1;
+}
+
+void render_pop_state(RenderContext* render) {
+  if (render->state_stack_idx == 0) {
+    return;
+  }
+
+  render->state_stack_idx -= 1;
+}
+
+void render_create_model(RenderContext* render, R_ModelStatic enum_model,
                          R_Model* out_model) {
   switch (enum_model) {
     case MODEL_STATIC_QUAD: {
@@ -132,7 +156,7 @@ void render_create_model(RenderState* render, R_ModelStatic enum_model,
   }
 }
 
-void render_draw_line(RenderState* render, Vec2 point1, Vec2 point2,
+void render_draw_line(RenderContext* render, Vec2 point1, Vec2 point2,
                       Vec4 color) {
   R_Vertex2D vertices[] = {
       {point1, color},
@@ -151,6 +175,7 @@ void render_draw_line(RenderState* render, Vec2 point1, Vec2 point2,
   // gl_flush(DRAWING_MODE_LINES, ArrayCount(vertices));
 }
 
-void render_draw_rect(RenderState* render, Vec4 rect, Vec4 color) {
-  push_quad(render, rect, color);
+void render_draw_rect(RenderContext* render, Vec2 position, Vec2 size,
+                      Vec4 color) {
+  push_quad(render, position, size, color);
 }

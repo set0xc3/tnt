@@ -5,41 +5,41 @@
 #include "tnt_math.h"
 #include "tnt_render.h"
 
-#define UI_LAYOUTS_CAPACITY 256
+#define UI_COMMAND_CAPASITY 1000
 
 typedef u64 UI_Id;
 
-typedef enum UI_LayoutKind {
-  UI_LayoutKind_Horizontal,
-  UI_LayoutKind_Vertical
-} UI_LayoutKind;
-
-typedef struct UI_Layout {
-  UI_LayoutKind kind;
-  Vec2 pos;
+typedef struct UI_Command {
+  Vec2 position;
   Vec2 size;
-  f32 pad;
-} UI_Layout;
+  Vec4 color;
+} UI_Command;
 
 typedef struct UI_State {
-  Vec2 mouse_pos;
-  b32 mouse_button;
   UI_Id active_id;
-  UI_Layout layouts[UI_LAYOUTS_CAPACITY];
-  u64 layouts_count;
+  UI_Command command_list[UI_COMMAND_CAPASITY];
+  u64 command_idx;
+
+  struct {
+    Vec2 position;
+    b32 button;
+    b32 last_button;
+  } mouse;
+
+  struct {
+    Vec2 position;
+    Vec2 size;
+  } window;
 } UI_State;
 
-void ui_begin(UI_State *ctx, Vec2 pos, f32 pad);
-void ui_begin_layout(UI_LayoutKind kind);
-b32 ui_button(UI_State *ctx, RenderState *render, Vec4 color, Vec2 size,
-              UI_Id id);
-void ui_end_layout(void);
-void ui_end(UI_State *ctx);
+void ui_begin(UI_State *ui, Vec2 pos, f32 pad);
+b32 ui_button(UI_State *ui, Vec2 position, Vec2 size, Vec4 color, UI_Id id);
+void ui_end(UI_State *ui);
 
-void ui_layout_push(UI_State *ctx, UI_Layout layout);
-void ui_layout_push_widget(UI_Layout *layout, Vec2 size);
-void ui_layout_pop(UI_State *ctx);
-UI_Layout *ui_layout_top(UI_State *ctx);
-Vec2 ui_layout_available_pos(UI_Layout *layout);
+UI_Command *ui_push_command(UI_State *ui);
+void ui_pop_command(UI_State *ui);
+
+UI_Command *ui_get_command(UI_State *ui, u64 idx);
+u64 ui_get_command_count(UI_State *ui);
 
 #endif  // TNT_UI_H

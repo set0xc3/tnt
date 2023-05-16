@@ -33,7 +33,7 @@ b8 os_window_open(OS_Window *window, const char *title, u32 width, u32 height,
   // #endif
 
   window->handle =
-      SDL_CreateWindow("My Window", xpos, ypos, width, height, window_flags);
+      SDL_CreateWindow(title, xpos, ypos, width, height, window_flags);
   if (!window->handle) {
     LOG_ERROR("[SDL] Failed create window");
     return false;

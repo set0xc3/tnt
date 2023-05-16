@@ -32,8 +32,10 @@ internal u32 gl_vertex_array_create(u32 vbo, u32 ebo, R_VertexAttribs *attribs,
                                     u32 size);
 internal void gl_vertex_array_bind(u32 id);
 internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat);
+internal void gl_set_depth_state(b32 enabled);
 
-internal void push_quad(RenderState *render, Vec4 rect, Vec4 color);
+internal void push_quad(RenderContext *render, Vec2 position, Vec2 size,
+                        Vec4 color);
 
 internal void gl_init(R_WindowHandle *window) {
   if (gladLoadGL() == 0) {
@@ -41,7 +43,6 @@ internal void gl_init(R_WindowHandle *window) {
     ASSERT(true);
     exit(1);
   }
-  glEnable(GL_DEPTH_TEST);
 }
 
 internal void gl_destroy(R_WindowHandle *window) {
@@ -244,16 +245,25 @@ internal void gl_uniform_mat4_set(u32 id, String8 name, f32 *mat) {
   glUniformMatrix4fv(uniform_location, 1, GL_FALSE, mat);
 }
 
-internal void push_quad(RenderState *render, Vec4 rect, Vec4 color) {
+internal void gl_set_depth_state(b32 enabled) {
+  if (enabled) {
+    glEnable(GL_DEPTH_TEST);
+  } else {
+    glDisable(GL_DEPTH_TEST);
+  }
+}
+
+internal void push_quad(RenderContext *render, Vec2 position, Vec2 size,
+                        Vec4 color) {
   if (render->quad_buffer_idx == QUAD_MAX) {
     LOG_WARNING("QUAD MAX!");
     return;
   }
 
-  f32 x = rect.x;
-  f32 y = rect.y;
-  f32 w = rect.z;
-  f32 h = rect.w;
+  f32 x = position.x;
+  f32 y = position.y;
+  f32 w = size.x;
+  f32 h = size.y;
 
   R_Vertex2D vertices[] = {
       {v2(x, y), color},         {v2(x + w, y), color},

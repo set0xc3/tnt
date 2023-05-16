@@ -7,6 +7,7 @@
 #include "tnt_logger.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
+#include "tnt_render.h"
 #include "tnt_render_internal.c"
 #include "tnt_render_types.h"
 #include "tnt_scene.h"
@@ -18,13 +19,13 @@ void app_init(void) {
   ctx.arena_permanent_storage = arena_create(Megabytes(64));
   ctx.arena_transient_storage = arena_create(Gigabytes(4));
   ctx.input = push_struct_zero(ctx.arena_permanent_storage, OS_Input);
-  ctx.render = push_struct_zero(ctx.arena_permanent_storage, RenderState);
+  ctx.render = push_struct_zero(ctx.arena_permanent_storage, RenderContext);
   ctx.window = push_struct_zero(ctx.arena_permanent_storage, OS_Window);
   ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
   ctx.scene = push_struct_zero(ctx.arena_transient_storage, Scene);
 
-  ctx.events = push_array_zero(ctx.arena_transient_storage, OS_Event,
-                               OS_EVENTS_CAPACITY);
+  ctx.event_stack = push_array_zero(ctx.arena_transient_storage, OS_Event,
+                                    OS_EVENTS_STATE_STACK_SIZE);
 
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, app_on_event);
@@ -61,17 +62,23 @@ void app_run(void) {
     f64 fps = (f64)(perf_count_frequency / counter_elapsed);
 
     os_window_poll_events(ctx.window);
+
     app_process_events();
+
+    if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      LOG_DEBUG("[UI] Button:Down");
+    }
+    if (os_input_button_pressed(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      LOG_DEBUG("[UI] Button:Pressed");
+    }
+    if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      LOG_DEBUG("[UI] Button:Up");
+    }
 
     if (ms_per_frame >= period_max) {
       if (ms_per_frame >= 1.0) {
         ms_per_frame = period_max;
       }
-
-      camera_on_resize(&camera, ctx.window->width, ctx.window->height);
-      camera_update(&camera, ctx.input, ms_per_frame);
-
-      render_begin(ctx.render, ctx.window);
 
       f32 half_height = ctx.window->height / 2.0f;
       f32 half_width = ctx.window->width / 2.0f;
@@ -79,8 +86,32 @@ void app_run(void) {
       Vec2 mouse_pos = os_input_get_mouse_position(ctx.input);
       mouse_pos.x = mouse_pos.x - half_width;
       mouse_pos.y = -mouse_pos.y + half_height;
+
+      camera_on_resize(&camera, ctx.window->width, ctx.window->height);
+      camera_update(&camera, ctx.input, ms_per_frame);
+
+      ui_begin(ctx.ui, v2(0.0f, 0.0f), 0.0f);
+
+      // LOG_DEBUG("Mouse: (%f, %f)", ctx.ui->mouse.position.x,
+      //           ctx.ui->mouse.position.y);
+      if (ui_button(ctx.ui, v2(0.0f, 0.0f), v2(100.0f, 100.0f), COLOR_BLUE,
+                    1)) {
+      }
+
+      for (u64 idx = 0; idx < ui_get_command_count(ctx.ui); idx += 1) {
+        UI_Command *cmd = ui_get_command(ctx.ui, idx);
+        render_draw_rect(ctx.render, cmd->position, cmd->size, cmd->color);
+      }
+
+      ui_end(ctx.ui);
+
+      render_begin(ctx.render, ctx.window);
+
 #if 1
       {
+        render_push_state(ctx.render);
+        render_set_depth_state(ctx.render, true);
+
         Mat4 projection_matrix = camera_get_perspective_matrix(&camera);
         Mat4 view_matrix = camera_get_view_matrix(&camera);
 
@@ -90,6 +121,7 @@ void app_run(void) {
             m_translate(model_pos),
             m_rotate_rh(time * m_to_radiansf(50.0f), v3(0.5f, 1.0f, 0.0f)));
 
+        gl_set_depth_state(ctx.render->current_state->depth_is_enabled);
         gl_shader_bind(ctx.render->shader_3d);
         gl_uniform_mat4_set(ctx.render->shader_3d, str8("projection"),
                             *projection_matrix.elements);
@@ -105,43 +137,36 @@ void app_run(void) {
         gl_vertex_array_bind(model_cube.vao);
         gl_flush(DRAWING_MODE_TRIANGLES, model_cube.meshes->vertices_count,
                  model_cube.meshes->indices_count);
+
+        render_pop_state(ctx.render);
       }
 #endif
 
 #if 1
       {
+        render_push_state(ctx.render);
+        render_set_depth_state(ctx.render, false);
+
         Mat4 ortho_matrix = camera_get_orthographic_matrix(&camera);
         Mat4 view_matrix = m_identity_m4(1.0f);
-        Mat4 model_matrix = m_identity_m4(1.0f);
 
-        // render_draw_rect(ctx.render, v4(0, 0, 100.0f, 100.0f), COLOR_PINK);
+        render_draw_rect(ctx.render, v2(mouse_pos.x, mouse_pos.y - 20.0f),
+                         v2(20.0f, 20.0f), COLOR_PINK);
 
-        render_draw_rect(ctx.render,
-                         v4(mouse_pos.x, mouse_pos.y, 100.0f, 100.0f),
-                         COLOR_PINK);
-
-        ui_begin(ctx.ui, v2(0.0f, 0.0f), 0.0f);
-
-        if (ui_button(ctx.ui, ctx.render, COLOR_BLUE, v2(100.0f, 100.0f), 0)) {
-          // LOG_DEBUG("[UI] Button:0");
-        }
-
-        ui_end(ctx.ui);
-
+        gl_set_depth_state(ctx.render->current_state->depth_is_enabled);
         gl_shader_bind(ctx.render->shader_2d);
         gl_uniform_mat4_set(ctx.render->shader_2d, str8("projection"),
                             *ortho_matrix.elements);
         gl_uniform_mat4_set(ctx.render->shader_2d, str8("view"),
                             *view_matrix.elements);
-
-        gl_uniform_mat4_set(ctx.render->shader_2d, str8("model"),
-                            *model_matrix.elements);
         gl_vertex_buffer_bind(ctx.render->quad_vbo);
         gl_vertex_buffer_update(ctx.render->quad_vertices,
                                 sizeof(ctx.render->quad_vertices));
         gl_vertex_array_bind(ctx.render->quad_vao);
+        gl_flush(DRAWING_MODE_TRIANGLES, ctx.render->quad_buffer_idx * 6, 0);
+
+        render_pop_state(ctx.render);
       }
-      gl_flush(DRAWING_MODE_TRIANGLES, ctx.render->quad_buffer_idx * 6, 0);
 #endif
 
       render_end(ctx.render, ctx.window);
@@ -153,53 +178,63 @@ void app_run(void) {
   }
 }
 
-void app_on_event(OS_Event *event) { app_push_event(event); }
+void app_on_event(OS_Event *event) {
+  switch (event->kind) {
+    case OS_EVENT_KIND_WINDOW_RESIZED:
+      ctx.window->width = event->window_width;
+      ctx.window->height = event->window_height;
+      return;
+  }
+
+  app_push_event(event);
+}
 
 void app_process_events(void) {
   OS_Event *event = 0;
+
   os_input_update(ctx.input);
 
-  for (u64 i = 0; i < ctx.events_count; i += 1) {
+  for (u64 i = 0; i < ctx.events_stack_idx; i += 1) {
     event = app_get_event(i);
+
     switch (event->kind) {
       case OS_EVENT_KIND_APP_QUIT:
         os_window_close(ctx.window);
         ctx.is_quit = true;
-        return;
-        break;
-      case OS_EVENT_KIND_MOUSE_BUTTON:
-        ctx.ui->mouse_button = event->state;
-        // LOG_DEBUG("[EVENT] MouseButton:%i", ctx.ui->mouse_button);
-        break;
-      case OS_EVENT_KIND_WINDOW_RESIZED:
-        ctx.window->width = event->window_width;
-        ctx.window->height = event->window_height;
         break;
     }
+
     os_input_on_event(ctx.input, event);
+
     app_pop_event();
   }
+
+  ctx.ui->mouse.position.x = ctx.input->mouse_x;
+  ctx.ui->mouse.position.y = ctx.input->mouse_y;
+
+  ctx.ui->window.size.x = ctx.window->width;
+  ctx.ui->window.size.y = ctx.window->height;
 }
 
 void app_push_event(OS_Event *event) {
-  ASSERT(ctx.events_count + 1 > OS_EVENTS_CAPACITY);
+  ASSERT(ctx.events_stack_idx + 1 > OS_EVENTS_STATE_STACK_SIZE);
 
-  OS_Event *pos = ctx.events + ctx.events_count;
+  OS_Event *pos = ctx.event_stack + ctx.events_stack_idx;
   memcpy(pos, event, sizeof(OS_Event));
-  ctx.events_count += 1;
+  ctx.events_stack_idx += 1;
 }
 
 void app_pop_event(void) {
-  ASSERT(ctx.events_count == 0);
+  ASSERT(ctx.events_stack_idx == 0);
 
-  OS_Event *pos = ctx.events + ctx.events_count - 1;
+  OS_Event *pos = ctx.event_stack + ctx.events_stack_idx - 1;
   memset(pos, 0, sizeof(OS_Event));
-  ctx.events_count -= 1;
+  ctx.events_stack_idx -= 1;
 }
 
 OS_Event *app_get_event(u64 index) {
-  ASSERT(ctx.events_count == 0);
+  ASSERT(ctx.events_stack_idx == 0);
 
-  OS_Event *result = ctx.events + index;
+  OS_Event *result = ctx.event_stack + index;
   return result;
 }

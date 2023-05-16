@@ -181,9 +181,9 @@ Vec2 div_v2f(Vec2 left, f32 right);
 Vec3 div_v3f(Vec3 left, f32 right);
 Vec4 div_v4f(Vec4 left, f32 right);
 
-b32 eq_v2(Vec2 left, Vec2 right);
-b32 eq_v3(Vec3 left, Vec3 right);
-b32 eq_v4(Vec4 left, Vec4 right);
+b32 is_equal_v2(Vec2 left, Vec2 right);
+b32 is_equal_v3(Vec3 left, Vec3 right);
+b32 is_equal_v4(Vec4 left, Vec4 right);
 
 Vec2 norm_v2(Vec2 v);
 Vec3 norm_v3(Vec3 v);
