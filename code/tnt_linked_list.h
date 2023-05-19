@@ -33,8 +33,8 @@ void *linked_list_iterate_next(LinkedListIterator *it);
 void *linked_list_iterate_prev(LinkedListIterator *it);
 
 #define linked_list_iterator_head(l, t, d) \
-  ((LinkedList_Iterator){l.head, offsetof(t, d)})
+  ((LinkedListIterator){l.head, offsetof(t, d)})
 #define linked_list_iterator_tail(l, t, d) \
-  ((LinkedList_Iterator){l.tail, offsetof(t, d)})
+  ((LinkedListIterator){l.tail, offsetof(t, d)})
 
 #endif  // TNT_LINKED_LIST_H

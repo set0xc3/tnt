@@ -1,3 +1,4 @@
+#include "tnt_linked_list.h"
 #if !defined(TNT_APPLICATION_H)
 #define TNT_APPLICATION_H
 
@@ -8,7 +9,9 @@
 #include "tnt_scene.h"
 #include "tnt_ui.h"
 
-#define OS_EVENTS_STATE_STACK_SIZE 256
+typedef struct EventList {
+  LinkedListList list;
+} EventList;
 
 typedef struct AppState {
   MemoryArena *arena_permanent_storage;
@@ -20,8 +23,8 @@ typedef struct AppState {
   RenderContext *render;
   OS_Window *window;
 
-  OS_Event *event_stack;
-  u64 events_stack_idx;
+  EventList event_list;
+  u64 events_list_idx;
 
   UI_State *ui;
   Scene *scene;

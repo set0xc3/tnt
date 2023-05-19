@@ -9,10 +9,6 @@ void os_input_on_event(OS_Input *input, OS_Event *event) {
     case OS_EVENT_KIND_MOUSE_BUTTON:
       input->button[event->code] = event->state;
       break;
-    case OS_EVENT_KIND_MOUSE_MOTION:
-      input->mouse_x = event->mouse_x;
-      input->mouse_y = event->mouse_y;
-      break;
   }
 }
 

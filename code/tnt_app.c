@@ -1,9 +1,11 @@
 #include "tnt_app.h"
 
 #include <math.h>
+#include <string.h>
 
 #include "tnt_base_types.h"
 #include "tnt_camera.h"
+#include "tnt_linked_list.h"
 #include "tnt_logger.h"
 #include "tnt_math.h"
 #include "tnt_os.h"
@@ -24,8 +26,8 @@ void app_init(void) {
   ctx.ui = push_struct_zero(ctx.arena_permanent_storage, UI_State);
   ctx.scene = push_struct_zero(ctx.arena_transient_storage, Scene);
 
-  ctx.event_stack = push_array_zero(ctx.arena_transient_storage, OS_Event,
-                                    OS_EVENTS_STATE_STACK_SIZE);
+  // ctx.event_list =
+  // push_struct_zero(ctx.arena_transient_storage, LinkedListList);
 
   os_window_open(ctx.window, "Window", 1920, 1080, 0, 0);
   os_window_set_event_callback(ctx.window, app_on_event);
@@ -63,22 +65,22 @@ void app_run(void) {
 
     os_window_poll_events(ctx.window);
 
-    app_process_events();
-
-    if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
-      LOG_DEBUG("[UI] Button:Down");
-    }
-    if (os_input_button_pressed(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
-      LOG_DEBUG("[UI] Button:Pressed");
-    }
-    if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
-      LOG_DEBUG("[UI] Button:Up");
-    }
-
     if (ms_per_frame >= period_max) {
       if (ms_per_frame >= 1.0) {
         ms_per_frame = period_max;
       }
+
+      app_process_events();
+
+      // if (os_input_button_down(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      //   LOG_DEBUG("[UI] Button:Down");
+      // }
+      // if (os_input_button_pressed(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      //   LOG_DEBUG("[UI] Button:Pressed");
+      // }
+      // if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+      //   LOG_DEBUG("[UI] Button:Up");
+      // }
 
       f32 half_height = ctx.window->height / 2.0f;
       f32 half_width = ctx.window->width / 2.0f;
@@ -96,6 +98,9 @@ void app_run(void) {
       //           ctx.ui->mouse.position.y);
       if (ui_button(ctx.ui, v2(0.0f, 0.0f), v2(100.0f, 100.0f), COLOR_BLUE,
                     1)) {
+        // if (os_input_button_up(ctx.input, OS_MOUSE_BUTTON_LEFT)) {
+        LOG_DEBUG("[UI] Button:Click");
+        // }
       }
 
       for (u64 idx = 0; idx < ui_get_command_count(ctx.ui); idx += 1) {
@@ -183,6 +188,15 @@ void app_on_event(OS_Event *event) {
     case OS_EVENT_KIND_WINDOW_RESIZED:
       ctx.window->width = event->window_width;
       ctx.window->height = event->window_height;
+
+      ctx.ui->window.size.x = event->window_width;
+      ctx.ui->window.size.y = event->window_height;
+      return;
+    case OS_EVENT_KIND_MOUSE_MOTION:
+      os_input_on_mouse_motion(ctx.input, event->mouse_x, event->mouse_y);
+
+      ctx.ui->mouse.position.x = event->mouse_x;
+      ctx.ui->mouse.position.y = event->mouse_y;
       return;
   }
 
@@ -190,13 +204,18 @@ void app_on_event(OS_Event *event) {
 }
 
 void app_process_events(void) {
-  OS_Event *event = 0;
-
   os_input_update(ctx.input);
 
-  for (u64 i = 0; i < ctx.events_stack_idx; i += 1) {
-    event = app_get_event(i);
+  if (linked_list_is_empty(&ctx.event_list.list)) {
+    return;
+  }
 
+  LinkedListIterator it =
+      linked_list_iterator_tail(ctx.event_list.list, OS_Event, node);
+
+  for (OS_Event *event = (OS_Event *)linked_list_iterate_next(&it);
+       &event->node != it.current;
+       event = (OS_Event *)linked_list_iterate_next(&it)) {
     switch (event->kind) {
       case OS_EVENT_KIND_APP_QUIT:
         os_window_close(ctx.window);
@@ -206,35 +225,18 @@ void app_process_events(void) {
 
     os_input_on_event(ctx.input, event);
 
-    app_pop_event();
+    linked_list_remove(&ctx.event_list.list, &event->node);
+    os_memory_free(event, sizeof(OS_Event));
+
+    ctx.events_list_idx -= 1;
   }
-
-  ctx.ui->mouse.position.x = ctx.input->mouse_x;
-  ctx.ui->mouse.position.y = ctx.input->mouse_y;
-
-  ctx.ui->window.size.x = ctx.window->width;
-  ctx.ui->window.size.y = ctx.window->height;
 }
 
 void app_push_event(OS_Event *event) {
-  ASSERT(ctx.events_stack_idx + 1 > OS_EVENTS_STATE_STACK_SIZE);
-
-  OS_Event *pos = ctx.event_stack + ctx.events_stack_idx;
+  OS_Event *pos = os_memory_alloc(0, sizeof(OS_Event));
   memcpy(pos, event, sizeof(OS_Event));
-  ctx.events_stack_idx += 1;
-}
 
-void app_pop_event(void) {
-  ASSERT(ctx.events_stack_idx == 0);
+  linked_list_push_front(&ctx.event_list.list, &pos->node);
 
-  OS_Event *pos = ctx.event_stack + ctx.events_stack_idx - 1;
-  memset(pos, 0, sizeof(OS_Event));
-  ctx.events_stack_idx -= 1;
-}
-
-OS_Event *app_get_event(u64 index) {
-  ASSERT(ctx.events_stack_idx == 0);
-
-  OS_Event *result = ctx.event_stack + index;
-  return result;
+  ctx.events_list_idx += 1;
 }

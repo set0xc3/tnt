@@ -1,9 +1,9 @@
+#include "tnt_os.h"
 #if !defined(TNT_UI_H)
 #define TNT_UI_H
 
 #include "tnt_base_types.h"
 #include "tnt_math.h"
-#include "tnt_render.h"
 
 #define UI_COMMAND_CAPASITY 1000
 
@@ -22,8 +22,8 @@ typedef struct UI_State {
 
   struct {
     Vec2 position;
-    b32 button;
-    b32 last_button;
+    b32 button[OS_MOUSE_BUTTON_COUNT];
+    b32 last_button[OS_MOUSE_BUTTON_COUNT];
   } mouse;
 
   struct {

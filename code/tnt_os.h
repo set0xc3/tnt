@@ -2,6 +2,7 @@
 #define TNT_OS_H
 
 #include "tnt_base_types.h"
+#include "tnt_linked_list.h"
 #include "tnt_math.h"
 #include "tnt_string.h"
 
@@ -17,14 +18,17 @@ typedef enum OS_EventType {
   OS_EVENT_KIND_COUNT
 } OS_EventType;
 
-typedef struct OS_Event {
+typedef struct OS_Event OS_Event;
+struct OS_Event {
+  LinkedListNode node;
+
   u32 kind;
   i32 state;
   u32 code;
   f32 mouse_x, mouse_y;
   f32 mouse_wheel_y;
   i32 window_width, window_height;
-} OS_Event;
+};
 
 typedef enum OS_KeyCode {
   OS_KEYCODE_NONE,
@@ -85,6 +89,8 @@ void* os_library_load_symbol(void* library_handle, String8 name);
 void os_library_unload(void* library_handle);
 
 void os_input_on_event(OS_Input* input, OS_Event* event);
+void os_input_on_mouse_motion(OS_Input* input, i32 xpos, i32 ypos);
+
 void os_input_update(OS_Input* input);
 b8 os_input_key_pressed(OS_Input* input, u32 code);
 b8 os_input_key_down(OS_Input* input, u32 code);
